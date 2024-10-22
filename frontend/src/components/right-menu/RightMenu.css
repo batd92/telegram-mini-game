@@ -1,0 +1,45 @@
+.right-menu {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    color: #fff;
+    font-family: 'Arial', sans-serif;
+}
+
+.menu-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sound-toggle,
+.home {
+    color: #333;
+    border: none;
+    border-radius: 10px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.home:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+strong {
+    font-size: 20px;
+}
+
+@media (max-width: 768px) {
+    .right-menu {
+        top: 10px;
+        right: 10px;
+    }
+
+    .sound-toggle,
+    .home-button {
+        font-size: 20px;
+    }
+}

@@ -1,0 +1,144 @@
+.home-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 100vh;
+    padding-left: 25px;
+    padding-right: 25px;
+    background: #fafbf3;
+    color: #fff;
+    font-family: 'Arial', sans-serif;
+}
+
+.avatar-container {
+    justify-content: center;
+    align-items: center;
+}
+
+.user-avatar {
+    width: 350px;
+    height: 500px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.game-title {
+    font-size: 35px;
+    font-weight: bold;
+    color: brown;
+    margin: 0px;
+    padding: 0px;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.primary-button,
+.secondary-button {
+    padding: 15px;
+    border-radius: 8px;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.primary-button {
+    background: #f0a500;
+    color: #000;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.primary-button:hover {
+    background: #d18b00;
+    transform: scale(1.05);
+}
+
+.secondary-button {
+    background: rgba(255, 255, 255, 0.8);
+    color: #333;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    padding: 12px;
+    width: 80%;
+}
+
+.invite-container {
+    display: flex;
+    gap: 10px;
+}
+
+.secondary-button:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.invite-button {
+    flex: 0 0 80%;
+}
+
+.copy-button {
+    background: white;
+    flex: 0 0 20%; 
+}
+
+.copy-svg {
+    width: 30px;
+    height: 30px;
+}
+
+.footer {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.footer-box {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    background: linear-gradient(135deg, #ff4081, #ffab40);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+}
+
+.footer-button {
+    background: #8B5A2B; /* Dark warm brown */
+    color: #f5f5dc; /* Light beige/cream for text */
+    font-weight: bold;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: none; /* Remove the border */
+    flex: 1;
+    margin: 0 5px;
+    transition: background 0.3s, transform 0.2s, box-shadow 0.2s; /* Added box-shadow transition */
+}
+
+
+.footer-button:hover {
+    background: #ffab40;
+    color: #fff;
+    transform: scale(1.05);
+}
+
+
+@media (max-width: 768px) {
+    .footer-box {
+        flex-direction: row;
+        gap: 10px;
+    }
+}
