@@ -1,4 +1,3 @@
-
 export interface IBall {
     x: number; // Tọa độ x của bóng
     y: number; // Tọa độ y của bóng

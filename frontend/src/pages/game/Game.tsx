@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Balls } from '../../game/Balls';
 import { Plank } from '../../game/Plank';
 import { Basket } from '../../game/Basket';
-import { CANVAS_SETTINGS, COLORS } from '../../game/Constants';
+import { COLORS } from '../../game/Constants';
 
 import GameInfo from '../../components/game-info/GameInfo';
 import RightMenu from '../../components/right-menu/RightMenu';
-import ModalEndGame from '../../components/modals/end-game/end-game'
+import ModalEndGame from '../../components/modals/end-game/end-game';
 import './Game.css';
 import MusicPlayer from '../../components/MusicPlayer';
 
@@ -163,7 +163,7 @@ const Game: React.FC = () => {
                         ...gameState,
                         isGameRunning: false,
                         isModalOpen: true,
-                        isSoundOn: false
+                        isSoundOn: false,
                     });
                     clearInterval(timer);
                 }
@@ -180,7 +180,11 @@ const Game: React.FC = () => {
      */
     useEffect(() => {
         if (gameState.timeLeft <= 0) {
-            updateGameState({ isGameRunning: false, isModalOpen: true, isSoundOn: false });
+            updateGameState({
+                isGameRunning: false,
+                isModalOpen: true,
+                isSoundOn: false,
+            });
         }
     }, [gameState.timeLeft]);
 
@@ -216,7 +220,13 @@ const Game: React.FC = () => {
             context.fillStyle = COLORS.BACKGROUND_COLOR;
             context.fillRect(0, 0, canvas.width, canvas.height);
 
-            context.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+            context.drawImage(
+                backgroundImage,
+                0,
+                0,
+                canvas.width,
+                canvas.height,
+            );
 
             // Update and render game objects
             if (ballsRef.current && planksRef.current) {
@@ -290,7 +300,7 @@ const Game: React.FC = () => {
         fontSize: string,
         color: string,
         x: number,
-        y: number
+        y: number,
     ) => {
         const spacedText = text.split('').join(String.fromCharCode(0x2004));
         context.font = fontSize;

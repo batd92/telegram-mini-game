@@ -28,7 +28,6 @@ export class Line implements ILine {
     }
 
     draw(context: CanvasRenderingContext2D): void {
-
         context.lineWidth = LINE_SETTINGS.LINE_WIDTH;
         context.strokeStyle = `rgb(${COLORS.LINE_COLOR})`;
         context.shadowColor = COLORS.SHADOW_COLOR;
@@ -44,6 +43,10 @@ export class Line implements ILine {
     }
 
     checked(): boolean {
-        return Math.sqrt(Math.pow(this.ex - this.sx, 2) + Math.pow(this.ey - this.sy, 2)) > Line.MIN_LENGTH;
+        return (
+            Math.sqrt(
+                Math.pow(this.ex - this.sx, 2) + Math.pow(this.ey - this.sy, 2),
+            ) > Line.MIN_LENGTH
+        );
     }
 }

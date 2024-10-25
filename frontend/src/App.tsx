@@ -1,27 +1,32 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import TokenHandler from './components/TokenHandler';
 import PrivateRoute from './components/PrivateRoute';
 
-import Home from './pages/home/Home';
+import TelegramLogin from './pages/TelegramLogin';
 import Game from './pages/game/Game';
-import Task from './pages/task/Task';
-import History from './pages/history/History';
-import LeaderBoard from './pages/leaderboard/LeaderBoard';
-import Intro from './pages/intro/Intro';
+import Referral from './pages/Referral';
+import Home from './pages/Home';
+import Task from './pages/Task';
+import UserHistory from './pages/History';
 
 const App: React.FC = () => {
     return (
         <AuthProvider>
             <Router>
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/intro" element={<Intro />} />
-                    <Route path="/game" element={<PrivateRoute><Game /></PrivateRoute>} />
-                    <Route path="/leaderboard" element={<LeaderBoard />} />
-                    <Route path="/task" element={<Task />} />
-                    <Route path="/history" element={<PrivateRoute><History /></PrivateRoute>} />
-                </Routes>
+                <TokenHandler />
+                <Suspense fallback={<div>Loading...</div>}>
+                    <Routes>
+                        <Route path="/login" element={<TelegramLogin />} />
+                        <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
+                        <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
+                        <Route path="/game" element={<PrivateRoute><Game /></PrivateRoute>} />
+                        <Route path="/referral" element={<PrivateRoute><Referral /></PrivateRoute>} />
+                        <Route path="/task" element={<PrivateRoute><Task /></PrivateRoute>} />
+                        <Route path="/history" element={<PrivateRoute><UserHistory /></PrivateRoute>} />
+                    </Routes>
+                </Suspense>
             </Router>
         </AuthProvider>
     );

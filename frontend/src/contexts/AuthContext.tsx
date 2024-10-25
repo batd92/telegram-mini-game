@@ -1,48 +1,33 @@
-import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 interface AuthContextType {
-    token: string | null;
-    login: (newToken: string) => void;
-    logout: () => void;
+    authToken: string | null;
+    setAuthToken: (token: string) => void;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-interface AuthProviderProps {
-    children: ReactNode;
-}
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-    const [token, setToken] = useState<string | null>(null);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [authToken, setAuthToken] = useState<string | null>(null);
 
     useEffect(() => {
-        const storedToken = sessionStorage.getItem('token');
-        if (storedToken) {
-            setToken(storedToken);
+        if (authToken) {
+            localStorage.setItem('authToken', authToken);
+        } else {
+            localStorage.removeItem('authToken');
         }
-    }, []);
-
-    const login = (newToken: string) => {
-        setToken(newToken);
-        sessionStorage.setItem('token', newToken);
-    };
-
-    const logout = () => {
-        setToken(null);
-        sessionStorage.removeItem('token');
-    };
+    }, [authToken]);
 
     return (
-        <AuthContext.Provider value={{ token, login, logout }}>
+        <AuthContext.Provider value={{ authToken, setAuthToken }}>
             {children}
         </AuthContext.Provider>
     );
 };
 
-export const useAuth = (): AuthContextType => {
+export const useAuth = () => {
     const context = useContext(AuthContext);
-    if (!context) {
+    if (context === undefined) {
         throw new Error('useAuth must be used within an AuthProvider');
     }
     return context;

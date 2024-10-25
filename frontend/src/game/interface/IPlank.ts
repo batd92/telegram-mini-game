@@ -1,4 +1,4 @@
-import { ILine } from "./ILine";
+import { ILine } from './ILine';
 
 export interface IPlank {
     planks: ILine[]; // Mảng chứa các đối tượng LineImpl
