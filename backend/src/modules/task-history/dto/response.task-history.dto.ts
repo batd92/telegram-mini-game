@@ -1,6 +1,6 @@
 import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { User } from 'database/schemas/user.schema';
+import { TelegramUser } from 'database/schemas/telegram-user.schema';
 import { Task } from 'database/schemas/task.schema';
 
 export class ResTaskHistoryDto {
@@ -24,8 +24,8 @@ export class ResTaskHistoryDto {
     @IsString()
     data: string;
 
-    @ApiProperty({ type: User })
-    user: User;
+    @ApiProperty({ type: TelegramUser })
+    user: TelegramUser;
 
     @ApiProperty({ type: Task })
     task: Task;

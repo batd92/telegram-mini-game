@@ -3,7 +3,7 @@ import { Document, SchemaTypes } from 'mongoose';
 
 export type TaskDocument = Task & Document;
 
-@Schema({ timestamps: true,  })
+@Schema({ timestamps: true, collection: 'tasks' })
 export class Task {
     @Prop({ type: SchemaTypes.ObjectId, auto: true })
     _id: string;
@@ -33,6 +33,6 @@ export const TaskSchema = SchemaFactory.createForClass(Task);
 TaskSchema.pre(['find', 'findOne'], function () {
     this.populate({
         path: 'user_id',
-        select: '_id telegram_id username',
+        select: '_id telegram_id user_name',
     });
 });

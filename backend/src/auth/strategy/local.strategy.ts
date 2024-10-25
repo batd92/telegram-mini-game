@@ -9,14 +9,14 @@ import { UserPrincipal } from '../interface/user-principal.interface';
 export class LocalStrategy extends PassportStrategy(Strategy) {
     constructor(private authService: AuthService) {
         super({
-            usernameField: 'username',
+            usernameField: 'user_name',
             passwordField: 'password',
         });
     }
 
-    async validate(username: string, password: string): Promise<UserPrincipal> {
+    async validate(user_name: string, password: string): Promise<UserPrincipal> {
         const user: UserPrincipal = await lastValueFrom(
-            this.authService.validateUser(username, password),
+            this.authService.validateUser(user_name, password),
         );
 
         if (!user) {

@@ -2,11 +2,8 @@ import {
     Controller,
     Get,
     Post,
-    Delete,
-    Param,
     Body,
     UseGuards,
-    Query,
     Req
 } from '@nestjs/common';
 import { lastValueFrom, Observable } from 'rxjs';
@@ -19,8 +16,6 @@ import { CreateGameHistoryDto } from './dto/create-game-history.dto';
 import { GameHistoryService } from './game-history.service';
 import { Request } from 'express';
 import { ResGameHistoryDto } from './dto/response.game-history.dto';
-
-
 @Controller('game-history')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class GameHistoryController {
@@ -28,7 +23,7 @@ export class GameHistoryController {
 
     @HasRoles(RoleType.USER)
     @Get()
-    getGameHistorys(@Req() req: any): Observable<{ tasks: GameHistory[], lastRecord: string | null }> {
+    getGameHistorys(@Req() req: any): Observable<{ data: GameHistory[], lastRecord: string | null }> {
         const user = req.user as { userId: string };
         return this.gameHistoryService.getGameHistorys(user.userId);
     }

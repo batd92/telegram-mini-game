@@ -1,5 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
-export class CreateGameUserDto {
+
+export class CreateGameProfileDto {
     @IsNotEmpty()
     readonly number_of_attempts: number;
 
