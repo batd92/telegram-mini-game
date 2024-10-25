@@ -3,13 +3,15 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AuthModule } from './auth/auth.module';
-import { UserModule } from './modules/user/user.module';
+import { TelegramUserModule } from './modules/telegram-user/telegram-user.module';
 import { LoggerModule } from './logger/logger.module';
 import { TaskModule } from './modules/task/task.module';
-import { GameUserModule } from 'modules/game-user/game-user.module';
+import { GameUserModule } from 'modules/game-profile/game-profile.module';
 import { GameHistoryModule } from 'modules/game-history/game-history.module';
 import { ReferralModule } from 'modules/referral/referral.module';
 import { TelegramModule } from 'modules/telegram/telegram.module';
+import { UserModule } from 'modules/user/user.module';
+import { DataInitializerService } from 'initializers/data.initializer';
 
 
 @Module({
@@ -19,6 +21,7 @@ import { TelegramModule } from 'modules/telegram/telegram.module';
         DatabaseModule,
         TelegramModule,
         UserModule,
+        TelegramUserModule,
         AuthModule,
         TaskModule,
         GameUserModule,
@@ -27,7 +30,7 @@ import { TelegramModule } from 'modules/telegram/telegram.module';
         LoggerModule.forRoot(),
     ],
     providers: [
-
+        DataInitializerService
     ]
 })
 export class AppModule { }

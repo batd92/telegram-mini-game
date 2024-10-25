@@ -29,7 +29,7 @@ export class Ball implements IBall {
             Ball.image.onload = () => {};
             Ball.image.onerror = (err) => {
                 console.error('Error loading image:', err);
-                Ball.image = null; 
+                Ball.image = null;
             };
         }
     }
@@ -40,7 +40,6 @@ export class Ball implements IBall {
 
     draw(context: CanvasRenderingContext2D, planks: any): boolean {
         if (!this.roll(planks)) {
-            
             return false;
         }
         if (Ball.image && Ball.image.complete) {
@@ -56,7 +55,7 @@ export class Ball implements IBall {
                 this.x - this.r,
                 this.y - this.r,
                 this.r * 2,
-                this.r * 2
+                this.r * 2,
             );
 
             context.restore();
@@ -79,19 +78,22 @@ export class Ball implements IBall {
     }
 
     roll(planks: any): boolean {
-        this.vy += (Ball.GRAVITY / Ball.FPS);
-        let nY = this.y + (this.vy / Ball.FPS);
-        let nX = this.x + (this.vx / Ball.FPS);
+        this.vy += Ball.GRAVITY / Ball.FPS;
+        let nY = this.y + this.vy / Ball.FPS;
+        let nX = this.x + this.vx / Ball.FPS;
         const s = planks.size();
 
         for (let i = 0; i < s; i++) {
             const _p = planks.planks[i];
-            const b = (_p.ex - _p.sx) * (nY - this.y) - (_p.ey - _p.sy) * (nX - this.x);
+            const b =
+                (_p.ex - _p.sx) * (nY - this.y) -
+                (_p.ey - _p.sy) * (nX - this.x);
             if (b === 0) continue;
 
             const ang = [this.x - _p.sx, this.y - _p.sy];
             const dr = ((nY - this.y) * ang[0] - (nX - this.x) * ang[1]) / b;
-            const ds = ((_p.ey - _p.sy) * ang[0] - (_p.ex - _p.sx) * ang[1]) / b;
+            const ds =
+                ((_p.ey - _p.sy) * ang[0] - (_p.ex - _p.sx) * ang[1]) / b;
 
             if (dr > 0 && dr < 1 && ds > 0 && ds < 1) {
                 let a = _p.ex === _p.sx ? 0 : (_p.ey - _p.sy) / (_p.ex - _p.sx);
@@ -103,19 +105,27 @@ export class Ball implements IBall {
                     this.vy *= -r;
                     this.vx *= -r;
                 } else {
-                    a = _p.ex === _p.sx ? 0 : -1 / ((_p.ey - _p.sy) / (_p.ex - _p.sx));
+                    a =
+                        _p.ex === _p.sx
+                            ? 0
+                            : -1 / ((_p.ey - _p.sy) / (_p.ex - _p.sx));
                     b = -(a * _p.sx) + _p.sy;
 
                     const p = [1, a + b];
                     const p2 = [2, a * 2 + b];
-                    const w = Math.sqrt(Math.pow(p2[0] - p[0], 2) + Math.pow(p2[1] - p[1], 2));
+                    const w = Math.sqrt(
+                        Math.pow(p2[0] - p[0], 2) + Math.pow(p2[1] - p[1], 2),
+                    );
 
-                    const ref = this.rebound([this.vx, this.vy], [(p2[0] - p[0]) / w, (p2[1] - p[1]) / w]);
+                    const ref = this.rebound(
+                        [this.vx, this.vy],
+                        [(p2[0] - p[0]) / w, (p2[1] - p[1]) / w],
+                    );
                     this.vx = r * ref[0];
                     this.vy = r * ref[1];
                 }
-                nY = this.y + (this.vy / Ball.FPS);
-                nX = this.x + (this.vx / Ball.FPS);
+                nY = this.y + this.vy / Ball.FPS;
+                nX = this.x + this.vx / Ball.FPS;
                 break;
             }
         }

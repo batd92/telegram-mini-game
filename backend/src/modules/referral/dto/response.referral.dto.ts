@@ -1,5 +1,5 @@
-
-export class ResReferralDto {
-    readonly referrer_id: string;
-    readonly referred_user_id: string;
+export interface ReferredUser {
+    _id: string;
+    user_name: string;
+    telegram_id: string;
 }

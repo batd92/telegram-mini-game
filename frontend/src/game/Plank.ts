@@ -2,7 +2,6 @@ import { IPlank } from './interface/IPlank';
 import { Line } from './Line';
 import { PLANK_SETTINGS } from './Constants';
 
-
 export class Plank implements IPlank {
     planks: Line[];
     curr: Line | null;

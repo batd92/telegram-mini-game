@@ -10,16 +10,18 @@ export class Basket implements IBasket {
     fillHeight: number;
 
     static image: HTMLImageElement | null = null;
-    static margin : number = 0;
+    static margin: number = 0;
 
     constructor(canvas: HTMLCanvasElement) {
         this.width = 120;
         this.height = 120;
-        this.x = Basket.margin + Math.random() * (canvas.width - this.width - 2 * Basket.margin);
+        this.x =
+            Basket.margin +
+            Math.random() * (canvas.width - this.width - 2 * Basket.margin);
         this.y = canvas.height - this.height - 10;
         this.speed = 10;
         this.score = 0;
-        this.fillHeight = 0; 
+        this.fillHeight = 0;
 
         if (!Basket.image) {
             Basket.image = new Image();
@@ -39,11 +41,16 @@ export class Basket implements IBasket {
                 this.x,
                 this.y,
                 this.width,
-                this.height
+                this.height,
             );
 
             context.fillStyle = 'rgba(255, 215, 0, 0.7)';
-            context.fillRect(this.x, this.y + this.height - this.fillHeight, this.width, this.fillHeight);
+            context.fillRect(
+                this.x,
+                this.y + this.height - this.fillHeight,
+                this.width,
+                this.fillHeight,
+            );
         }
     }
 
@@ -52,9 +59,10 @@ export class Basket implements IBasket {
         const basketLeft = this.x;
         const basketRight = this.x + this.width;
 
-        const isWithinX = goldX + goldRadius > basketLeft && goldX - goldRadius < basketRight;
+        const isWithinX =
+            goldX + goldRadius > basketLeft && goldX - goldRadius < basketRight;
         const isWithinY = goldY + goldRadius >= basketTop;
-        if(isWithinX && isWithinY) {
+        if (isWithinX && isWithinY) {
             this.incrementScore();
             return true;
         }

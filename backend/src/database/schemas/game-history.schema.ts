@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, SchemaTypes } from 'mongoose';
 import { Type } from 'class-transformer';
-import { User } from './user.schema';
+import { TelegramUser } from './telegram-user.schema';
 
 export type GameHistoryDocument = HydratedDocument<GameHistory>;
 
@@ -10,13 +10,14 @@ export type GameHistoryDocument = HydratedDocument<GameHistory>;
         getters: true,
         virtuals: true,
     },
-    timestamps: true
+    timestamps: true,
+    collection: 'game_histories'
 })
 export class GameHistory {
     @Prop({ type: SchemaTypes.ObjectId, auto: true })
     _id: string;
 
-    @Prop({ type: SchemaTypes.ObjectId, ref: 'User', required: true })
+    @Prop({ type: SchemaTypes.ObjectId, ref: 'TelegramUser', required: true })
     user_id: string;
 
     @Prop({ required: true })
@@ -31,8 +32,8 @@ export class GameHistory {
     @Prop({ required: true, default: '' })
     data: string;
 
-    @Type(() => User)
-    user: User;
+    @Type(() => TelegramUser)
+    user: TelegramUser;
 }
 
 export const GameHistorySchema = SchemaFactory.createForClass(GameHistory);
@@ -40,6 +41,6 @@ export const GameHistorySchema = SchemaFactory.createForClass(GameHistory);
 GameHistorySchema.pre(['find', 'findOne'], function () {
     this.populate({
         path: 'user_id',
-        select: '_id telegram_id username',
+        select: '_id telegram_id user_name',
     });
 });

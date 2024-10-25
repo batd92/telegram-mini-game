@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PassportSerializer } from '@nestjs/passport';
 
-import { User } from '../database/schemas/user.schema';
+import { TelegramUser } from '../database/schemas/telegram-user.schema';
 
 @Injectable()
 export class SessionSerializer extends PassportSerializer {
     serializeUser(
-        user: User,
-        done: (err: Error | null, id?: User) => void,
+        user: TelegramUser,
+        done: (err: Error | null, id?: TelegramUser) => void,
     ): void {
         //delete user.password;
         done(null, user);
