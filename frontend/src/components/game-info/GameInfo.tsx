@@ -11,13 +11,19 @@ const GameInfo: React.FC<GameInfoProps> = ({ timeLeft, score, attempts }) => {
     return (
         <div className="game-info">
             <div className="info-item">
-                <p>⏳ <strong>{timeLeft}s</strong></p>
+                <p>
+                    ⏳ <strong>{timeLeft}s</strong>
+                </p>
             </div>
             <div className="info-item">
-                <p>🏆 <strong>{score}</strong></p>
+                <p>
+                    🏆 <strong>{score}</strong>
+                </p>
             </div>
             <div className="info-item">
-                <p>🎯 <strong>{attempts}</strong></p>
+                <p>
+                    🎯 <strong>{attempts}</strong>
+                </p>
             </div>
         </div>
     );

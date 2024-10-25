@@ -2,27 +2,27 @@ import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nest
 import { Model } from 'mongoose';
 import { Observable, catchError, from, map, mergeMap, of } from 'rxjs';
 import { CreateGameHistoryDto } from './dto/create-game-history.dto';
-import { GAME_HISTORY_MODEL, GAME_USER_MODEL } from 'database/constants';
+import { GAME_HISTORY_MODEL, GAME_PROFILE_MODEL } from 'database/constants';
 import { GameHistory } from 'database/schemas/game-history.schema';
 import { ResGameHistoryDto } from './dto/response.game-history.dto';
-import { GameUserService } from 'modules/game-user/game-user.service';
+import { GameProfileService } from 'modules/game-profile/game-profile.service';
 
 @Injectable()
 export class GameHistoryService {
     constructor(
         @Inject(GAME_HISTORY_MODEL) private gameHistoryModel: Model<GameHistory>,
-        private readonly gameUserService: GameUserService
+        private readonly gameProfileService: GameProfileService
     ) { }
 
-    getGameHistorys(user_id: string): Observable<{ tasks: GameHistory[], lastRecord: string | null }> {
+    getGameHistorys(user_id: string): Observable<{ data: GameHistory[], lastRecord: string | null }> {
         return from(
             this.gameHistoryModel.find({ user_id })
                 .sort({ createdAt: -1 })
                 .limit(10)
                 .exec()
-                .then((tasks) => ({
-                    tasks,
-                    lastRecord: tasks.length > 0 ? tasks[tasks.length - 1]._id.toString() : null,
+                .then((data) => ({
+                    data,
+                    lastRecord: data.length > 0 ? data[data.length - 1]._id.toString() : null,
                 }))
         );
     }
@@ -38,7 +38,7 @@ export class GameHistoryService {
     }
 
     save(createGameHistoryDto: CreateGameHistoryDto, userId: string, ip: string, userAgent: string): Observable<ResGameHistoryDto> {
-        return this.gameUserService.getGameUserById(userId).pipe(
+        return this.gameProfileService.getGameUserById(userId).pipe(
             mergeMap((gameUser) => {
                 if (!gameUser) {
                     throw new NotFoundException('User not found');

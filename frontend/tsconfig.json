@@ -1,26 +1,7 @@
 {
-    "compilerOptions": {
-        "target": "es5",
-        "module": "esnext",
-        "jsx": "react",
-        "lib": ["DOM", "DOM.Iterable", "ES6"],
-        "allowJs": true,
-        "strict": true,
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
-        "outDir": "./dist",
-        "rootDir": "./src",
-        "baseUrl": "src",
-        "paths": {
-            "@assets/*": ["assets/*"]
-        },
-        "allowSyntheticDefaultImports": true,
-        "moduleResolution": "node",
-    },
-    "include": [
-        "src/**/*",
-        "src/global.d.ts"
-    ],
-    "exclude": ["node_modules"]
+    "files": [],
+    "references": [
+        { "path": "./tsconfig.app.json" },
+        { "path": "./tsconfig.node.json" }
+    ]
 }

@@ -106,7 +106,9 @@ img {
     cursor: pointer;
     font-size: 16px;
     font-weight: bold;
-    transition: background-color 0.3s, transform 0.2s;
+    transition:
+        background-color 0.3s,
+        transform 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -118,7 +120,7 @@ img {
 }
 
 .play-again-button {
-    background-color: #4CAF50;
+    background-color: #4caf50;
     color: #fff;
 }
 

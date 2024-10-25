@@ -1,6 +1,6 @@
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { from, Observable } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { TASK_MODEL } from 'database/constants';
 import { Task } from 'database/schemas/task.schema';
@@ -16,11 +16,11 @@ export class TaskService {
         console.log('TaskService initialized ...');
     }
 
-    getTasks(search?: string): Observable<{ tasks: ResTaskDto[], lastRecord: string | null }> {
+    getTasks(search?: string): Observable<{ data: ResTaskDto[], lastRecord: string | null }> {
         const query = search
             ? { title: { $regex: search.replace(/"/g, ''), $options: 'i' }, status: 1 }
             : { status: 1 };
-
+    
         return from(this.taskModel.aggregate([
             { $match: query },
             { $sort: { createdAt: -1 } },
@@ -39,34 +39,38 @@ export class TaskService {
                     title: 1,
                     link: 1,
                     des: 1,
-                    status: 1,
-                    task_history: { $arrayElemAt: ['$task_history_info', 0] }
+                    score: 1,
+                    history: { $arrayElemAt: ['$task_history_info', 0] }
                 }
             }
         ])).pipe(
             map(tasks => {
                 const lastRecord = tasks.length > 0 ? tasks[tasks.length - 1]._id.toString() : null;
-
+    
                 const taskResponses: ResTaskDto[] = tasks.map(task => ({
                     _id: task._id.toString(),
                     title: task.title,
                     link: task.link,
                     des: task.des,
                     status: task.status,
-                    task_history: task.task_history ? {
-                        score: task.task_history.score,
-                        ip: task.task_history.ip,
-                        browser: task.task_history.browser,
-                    } : { score: 0, ip: '', browser: '' },
+                    history: task.history ? {
+                        score: task.history.score,
+                        ip: task.history.ip,
+                        browser: task.history.browser,
+                    } : null,
                 }));
-
+    
                 return {
-                    tasks: taskResponses,
+                    data: taskResponses,
                     lastRecord: lastRecord,
                 };
+            }),
+            catchError(err => {
+                return of({ data: [], lastRecord: null });
             })
         );
     }
+    
 
     findById(id: string): Observable<Task | null> {
         return from(this.taskModel.findById(id).exec()).pipe(

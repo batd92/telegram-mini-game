@@ -4,6 +4,7 @@ import { from, map, Observable } from 'rxjs';
 import { REFERRAL_MODEL } from 'database/constants';
 import { Referral } from 'database/schemas/referral.schema';
 import { CreateReferralDto } from './dto/create-referral.dto';
+import { ReferredUser } from './dto/response.referral.dto';
 
 @Injectable()
 export class ReferralService {
@@ -13,15 +14,13 @@ export class ReferralService {
         console.log('ReferralService initialized ...');
     }
 
-    getReferralStats(user_id: string): Observable<{ totalScore: number; totalReferrals: number; referredUsers: any[] }> {
+    getReferralStats(user_id: string): Observable<{ data: ReferredUser[] }> {
         return from(
             this.referralModel.aggregate([
                 { $match: { user_id: user_id } },
                 {
                     $group: {
                         _id: null,
-                        totalScore: { $sum: '$score' },
-                        totalReferrals: { $count: {} },
                         referredUsers: { $push: '$referred_user_id' }
                     },
                 },
@@ -36,14 +35,12 @@ export class ReferralService {
                 {
                     $project: {
                         _id: 0,
-                        totalScore: 1,
-                        totalReferrals: 1,
                         referredUsers: { $map: {
                             input: '$referredUserDetails',
                             as: 'user',
                             in: {
                                 _id: '$$user._id',
-                                username: '$$user.username',
+                                user_name: '$$user.user_name',
                                 telegram_id: '$$user.telegram_id'
                             }
                         }}
@@ -52,7 +49,8 @@ export class ReferralService {
             ]).exec()
         ).pipe(
             map((result) => {
-                return result.length > 0 ? result[0] : { totalScore: 0, totalReferrals: 0, referredUsers: [] };
+                const referredUsers = result.length > 0 ? result[0].referredUsers : [];
+                return { data: referredUsers  };
             })
         );
     }

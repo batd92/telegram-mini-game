@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UserModule } from '../modules/user/user.module';
+import { TelegramUserModule } from '../modules/telegram-user/telegram-user.module';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './strategy/local.strategy';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
@@ -15,7 +15,7 @@ import { SessionSerializer } from './session.serializer';
 @Module({
     imports: [
         ConfigModule.forFeature(jwtConfig),
-        UserModule,
+        TelegramUserModule,
         PassportModule.register({ defaultStrategy: 'jwt', session: true }),
         JwtModule.registerAsync({
             imports: [ConfigModule.forFeature(jwtConfig)],

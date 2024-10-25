@@ -14,12 +14,12 @@ import { ResTaskDto } from './dto/response.task.dto';
 
 @Controller('tasks')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@HasRoles(RoleType.USER, RoleType.ADMIN)
+@HasRoles(RoleType.USER)
 export class TaskController {
     constructor(private readonly taskService: TaskService) { }
 
     @Get()
-    getTask(@Query('keyword') search: string): Observable<{ tasks: ResTaskDto[], lastRecord: string | null }> {
+    getTask(@Query('keyword') search: string): Observable<{ data: ResTaskDto[], lastRecord: string | null }> {
         return this.taskService.getTasks(search);
     }
 }

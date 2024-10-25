@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, SchemaTypes } from 'mongoose';
 import { Type } from 'class-transformer';
-import { User } from './user.schema';
+import { TelegramUser } from './telegram-user.schema';
 import { Task } from './task.schema';
 
 export type TaskHistoryDocument = HydratedDocument<TaskHistory>;
@@ -11,13 +11,15 @@ export type TaskHistoryDocument = HydratedDocument<TaskHistory>;
         getters: true,
         virtuals: true,
     },
-    timestamps: true
+    timestamps: true,
+     collection: 'task_histories'
 })
 export class TaskHistory {
     @Prop({ type: SchemaTypes.ObjectId, auto: true })
     _id: string;
 
-    @Prop({ type: SchemaTypes.ObjectId, ref: 'User', required: true })
+    @Prop({ type: SchemaTypes.ObjectId, ref: 'TelegramUser', required: true })
+    @Type(() => TelegramUser)
     user_id: string;
 
     @Prop({ type: SchemaTypes.ObjectId, ref: 'Task', required: true })
@@ -35,8 +37,8 @@ export class TaskHistory {
     @Prop({ required: true, default: '' })
     data: string;
 
-    @Type(() => User)
-    user: User;
+    @Type(() => TelegramUser)
+    user: TelegramUser;
 
     @Type(() => Task)
     task: Task;
@@ -48,7 +50,7 @@ export const TaskHistorySchema = SchemaFactory.createForClass(TaskHistory);
 TaskHistorySchema.pre(['find', 'findOne'], function (next) {
     this.populate({
         path: 'user_id',
-        select: '_id telegram_id username',
+        select: '_id telegram_id user_name',
     }).populate({
         path: 'task_id',
         select: '_id title status',

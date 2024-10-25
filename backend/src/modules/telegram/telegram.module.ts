@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { TelegramService } from './telegram.service';
 import { DatabaseModule } from 'database/database.module';
-import { UserModule } from 'modules/user/user.module';
+import { TelegramUserModule } from 'modules/telegram-user/telegram-user.module';
 
 @Module({
     imports: [
         DatabaseModule,
-        UserModule
+        TelegramUserModule
     ],
     providers: [TelegramService],
     exports: [TelegramService],

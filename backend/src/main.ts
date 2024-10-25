@@ -21,7 +21,7 @@ async function bootstrap() {
     // swagger
     const options = new DocumentBuilder()
         .setTitle('mini-game')
-        .setDescription('Mini Game')
+        .setDescription('This is mini game API')
         .setVersion('1.0')
         .addTag('mini')
         .addBearerAuth()

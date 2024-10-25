@@ -1,8 +1,10 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { Telegraf, Context } from 'telegraf';
 import axios from 'axios';
-import { TelegramUser } from './interfaces/telegram.interface';
-import { UserService } from 'modules/user/user.service';
+import { ITelegramUser } from './interfaces/telegram.interface';
+import { TelegramUserService } from 'modules/telegram-user/telegram-user.service';
+const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL || 'http://localhost:4000';
+const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000';
 
 @Injectable()
 export class TelegramService implements OnModuleInit, OnModuleDestroy {
@@ -10,7 +12,7 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
     private readonly token: string = process.env.TELEGRAM_BOT_TOKEN || '7363203830:AAE1fgOfeZCQ5cxtUpuFylgdM3qvFoEi4fA';
 
     constructor(
-        private readonly userService: UserService
+        private readonly telegramUserService: TelegramUserService
     ) {
         this.bot = new Telegraf<Context>(this.token);
     }
@@ -36,7 +38,9 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
     }
 
     private async handleStartCommand(ctx: any) {
-        const user: TelegramUser = ctx.from;
+        const user: ITelegramUser = ctx.from;
+        user.user_name = ctx.from.username;
+
         const messageText = ctx.message?.text;
 
         if (!messageText) {
@@ -44,27 +48,27 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
             return;
         }
 
-        const args = messageText.split(' ');
+        const urlParams = new URLSearchParams(messageText.split(' ')[1]);
+        const referralCode = urlParams.get('startApp')?.replace('ref_', '');
 
-        if (args.length > 1) {
-            user.referral_code = args[1].replace('ref_', '');
+        if (referralCode) {
+            user.referral_code = referralCode;
         }
 
         try {
-            const userTelegram = await this.userService.findByAuthReq(user.id.toString());
-            if (!userTelegram) {
-                await this.userService.register(user);
-            }
-
+            const telegramUser = await this.telegramUserService.findByAuthReq(user.id.toString()) || await this.telegramUserService.register(user);
             // Login
-            const tokenResponse = await axios.post('http://localhost:3000/auth/login', {
-                username: user.username,
-                telegram_id: user.id
+            const tokenResponse = await axios.post(API_BASE_URL + '/auth/login', {
+                user_name: telegramUser.user_name,
+                telegram_id: user.id,
+                roles: telegramUser.roles,
+                id: telegramUser._id
             });
 
             const token = tokenResponse.data.access_token;
 
-            const websiteUrl = `https://your-website.com?token=${token}`;
+            const websiteUrl = `${FRONTEND_BASE_URL}?token=${token}`;
+            console.log('websiteUrl', websiteUrl);
             await ctx.reply(`Click the button below to play:`, {
                 reply_markup: {
                     inline_keyboard: [[
@@ -73,16 +77,13 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
                 },
             });
         } catch (error) {
-            console.error('Error handling start command:');
+            console.error('Error handling start command:', error);
             await ctx.reply('An error occurred while processing your request. Please try again later.');
         }
     }
 
     private async handlePlayCommand(ctx: Context) {
-        const user: TelegramUser = ctx.from;
-        const webPageUrl = `https://your-website.com/login?token=${1233}`;
-
-        await ctx.reply(`Opening your game page: ${webPageUrl}`);
+        await ctx.reply(`Play Game`);
     }
 
     async sendMessage(chatId: string, message: string): Promise<void> {
