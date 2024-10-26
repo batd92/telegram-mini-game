@@ -2,16 +2,13 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Balls } from '../../game/Balls';
 import { Plank } from '../../game/Plank';
-import { Basket } from '../../game/Basket';
 import { COLORS } from '../../game/Constants';
 
-import GameInfo from '../../components/game-info/GameInfo';
-import RightMenu from '../../components/right-menu/RightMenu';
-import ModalEndGame from '../../components/modals/end-game/end-game';
+import ControlPanel from './ControlPanel';
+import ModalEnd from './ModalEnd';
 import './Game.css';
-import MusicPlayer from '../../components/MusicPlayer';
 
-const GAME_DURATION = 200;
+const GAME_DURATION = 1000;
 const INITIAL_ATTEMPTS = 3;
 
 interface GameState {
@@ -38,10 +35,6 @@ const Game: React.FC = () => {
         isModalOpen: false,
     });
 
-    useEffect(() => {
-        backgroundImage.src = '/images/bg-game.jpeg';
-    }, [backgroundImage]);
-
     const updateGameState = (newState: Partial<typeof gameState>) => {
         setGameState((prev: any) => ({ ...prev, ...newState }));
     };
@@ -49,7 +42,6 @@ const Game: React.FC = () => {
     // References to game objects
     const ballsRef = useRef<Balls | null>(null);
     const planksRef = useRef<Plank | null>(null);
-    const basketRef = useRef<Basket | null>(null);
 
     const getClientCoordinates = (e: MouseEvent | TouchEvent) => {
         let clientX = 0;
@@ -92,9 +84,6 @@ const Game: React.FC = () => {
             ballsRef.current.canvasHeight = canvas.height;
         }
 
-        if (basketRef.current) {
-            basketRef.current.y = canvas.height - basketRef.current.height - 10;
-        }
         console.log(`Canvas size: ${canvas.width}x${canvas.height}`);
     }, []);
 
@@ -113,10 +102,6 @@ const Game: React.FC = () => {
             ballsRef.current.reset(canvas);
         }
 
-        if (basketRef.current) {
-            basketRef.current.resetPosition(canvas.width, canvas.height);
-            basketRef.current.score = 0;
-        }
     }, []);
 
     /**
@@ -203,7 +188,6 @@ const Game: React.FC = () => {
         // Initialize game objects
         ballsRef.current = new Balls(canvas);
         planksRef.current = new Plank();
-        basketRef.current = new Basket(canvas);
 
         /**
          * The main game loop responsible for rendering and updating game objects
@@ -232,10 +216,6 @@ const Game: React.FC = () => {
             if (ballsRef.current && planksRef.current) {
                 ballsRef.current.fr(context, planksRef.current);
                 planksRef.current.draw(context);
-            }
-
-            if (basketRef.current) {
-                basketRef.current.draw(context);
             }
 
             catchGold();
@@ -312,57 +292,25 @@ const Game: React.FC = () => {
      * Handles collision detection between balls and the basket
      */
     const catchGold = () => {
-        if (!ballsRef.current || !basketRef.current || !gameState.isGameRunning)
+        if (!ballsRef.current || !gameState.isGameRunning)
             return;
-
-        const ballsCopy = [...ballsRef.current.balls];
-        ballsCopy.forEach((ball) => {
-            if (basketRef.current!.catchGold(ball.y, ball.x, ball.r)) {
-                const realIndex = ballsRef.current!.balls.indexOf(ball);
-                if (realIndex > -1) {
-                    ballsRef.current!.balls.splice(realIndex, 1);
-                    setScore(gameState.score + 1);
-                }
-            }
-        });
-    };
-
-    const setScore = (newScore: number) => {
-        setGameState((prevState: GameState) => ({
-            ...prevState,
-            score: newScore,
-        }));
-    };
-
-    const setToggleSound = () => {
-        setGameState((prevState: GameState) => ({
-            ...prevState,
-            isSoundOn: !prevState.isSoundOn,
-        }));
     };
 
     return (
         <div className="game-container">
             <canvas ref={canvasRef} />
-            <ModalEndGame
+            <ControlPanel
+                handleBackToHome={handleBackToHome}
+                isSoundOn={gameState.isSoundOn}
+                score={gameState.score}
+                timeLeft={gameState.timeLeft}
+            />
+            <ModalEnd
                 isOpen={gameState.isModalOpen}
                 onPlayAgain={handlePlayAgain}
                 onBackToHome={handleBackToHome}
-                score={gameState.score}
                 attempts={gameState.attempts}
             />
-            <GameInfo
-                score={gameState.score}
-                timeLeft={gameState.timeLeft}
-                attempts={gameState.attempts}
-            />
-            <RightMenu
-                handleBackToHome={handleBackToHome}
-                disabled={gameState.isGameRunning}
-                toggleSound={setToggleSound}
-                isSoundOn={gameState.isSoundOn}
-            />
-            <MusicPlayer isSoundOn={gameState.isSoundOn} />
         </div>
     );
 };

@@ -15,13 +15,15 @@ const App: React.FC = () => {
     return (
         <AuthProvider>
             <Router>
-                <TokenHandler />
+                {/* <TokenHandler /> */}
                 <Suspense fallback={<div>Loading...</div>}>
                     <Routes>
+                    <Route path="/game" element={<Game />} />
+                    <Route path="/" element={<Home />} />
                         <Route path="/login" element={<TelegramLogin />} />
                         <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
                         <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
-                        <Route path="/game" element={<PrivateRoute><Game /></PrivateRoute>} />
+                        {/* <Route path="/game" element={<PrivateRoute><Game /></PrivateRoute>} /> */}
                         <Route path="/referral" element={<PrivateRoute><Referral /></PrivateRoute>} />
                         <Route path="/task" element={<PrivateRoute><Task /></PrivateRoute>} />
                         <Route path="/history" element={<PrivateRoute><UserHistory /></PrivateRoute>} />
