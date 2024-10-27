@@ -24,7 +24,10 @@ export class GameProfile {
     remaining_play: number;
 
     @Prop({ required: false, default: 100 })
-    earned_points: number; 
+    earned_points: number;
+
+    @Prop({ required: false, default: 100 })
+    duration: number;
 }
 
 export const GameProfileSchema = SchemaFactory.createForClass(GameProfile);

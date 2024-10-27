@@ -3,3 +3,10 @@ export class ResGameHistoryDto {
     readonly remaining_play: number;
     readonly status: boolean;
 }
+
+
+export class ResListGameHistoryDto {
+    readonly score: number;
+    readonly createdAt: string;
+    readonly _id: string;
+}
