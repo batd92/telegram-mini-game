@@ -1,27 +1,31 @@
-import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { Observable, catchError, from, map, mergeMap, of } from 'rxjs';
 import { CreateGameHistoryDto } from './dto/create-game-history.dto';
 import { GAME_HISTORY_MODEL, GAME_PROFILE_MODEL } from 'database/constants';
-import { GameHistory } from 'database/schemas/game-history.schema';
-import { ResGameHistoryDto } from './dto/response.game-history.dto';
+import { GameHistory, GameHistoryDocument } from 'database/schemas/game-history.schema';
+import { ResGameHistoryDto, ResListGameHistoryDto } from './dto/response.game-history.dto';
 import { GameProfileService } from 'modules/game-profile/game-profile.service';
 
 @Injectable()
 export class GameHistoryService {
     constructor(
         @Inject(GAME_HISTORY_MODEL) private gameHistoryModel: Model<GameHistory>,
-        private readonly gameProfileService: GameProfileService
+        @Inject(forwardRef(() => GameProfileService)) private readonly gameProfileService: GameProfileService
     ) { }
 
-    getGameHistorys(user_id: string): Observable<{ data: GameHistory[], lastRecord: string | null }> {
+
+    getGameHistorys(user_id: string): Observable<{ data: ResListGameHistoryDto[], lastRecord: string | null }> {
         return from(
-            this.gameHistoryModel.find({ user_id })
+            this.gameHistoryModel.find<GameHistoryDocument>({ user_id })
                 .sort({ createdAt: -1 })
-                .limit(10)
                 .exec()
                 .then((data) => ({
-                    data,
+                    data: data.map((rd) => ({
+                        score: rd.score,
+                        createdAt: rd['createdAt'],
+                        _id: rd._id.toString()
+                    })),
                     lastRecord: data.length > 0 ? data[data.length - 1]._id.toString() : null,
                 }))
         );
@@ -33,12 +37,12 @@ export class GameHistoryService {
                 { $match: { user_id } },
                 { $group: { _id: null, totalScore: { $sum: '$score' } } },
             ])
-            .then(result => result.length > 0 ? result[0].totalScore : 0)
+                .then(result => result.length > 0 ? result[0].totalScore : 0)
         );
     }
 
     save(createGameHistoryDto: CreateGameHistoryDto, userId: string, ip: string, userAgent: string): Observable<ResGameHistoryDto> {
-        return this.gameProfileService.getGameUserById(userId).pipe(
+        return this.gameProfileService.findById(userId).pipe(
             mergeMap((gameUser) => {
                 if (!gameUser) {
                     throw new NotFoundException('User not found');
@@ -95,6 +99,20 @@ export class GameHistoryService {
                 }
                 return gameHistory;
             })
+        );
+    }
+
+    getLastGameHistory(user_id: string): Observable<GameHistory | null> {
+        return from(
+            this.gameHistoryModel.findOne<GameHistoryDocument>({ user_id })
+                .sort({ createdAt: -1 })
+                .exec()
+                .then((record) => {
+                    if (!record) {
+                        return null;
+                    }
+                    return record;
+                })
         );
     }
 }

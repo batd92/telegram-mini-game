@@ -42,7 +42,6 @@ export const fetchGameHistory = async () => {
 };
 
 export const addGameHistory = async (gameData: {
-    userId: string;
     score: number;
 }) => {
     const response = await axiosInstance.post('/game-history', gameData);

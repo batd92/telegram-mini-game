@@ -40,7 +40,7 @@ export class TelegramUserService {
     const totalGameScore = await this.gameHistoryService.getTotalScore(id).toPromise();
     const totalTaskScore = await this.taskHistoryService.getTotalScore(id).toPromise();
     const { data } = await this.referralService.getReferralStats(id).toPromise();
-    const gameInfo = await this.gameProfileService.getGameUserById(id).toPromise();
+    const gameInfo = await this.gameProfileService.getGameProfiler(id).toPromise();
 
     return {
         data: {
@@ -60,6 +60,7 @@ export class TelegramUserService {
                 number_of_attempts: gameInfo.number_of_attempts,
                 remaining_play: gameInfo.remaining_play,
                 earned_points: gameInfo.earned_points,
+                duration: gameInfo.duration
             },
         },
     };

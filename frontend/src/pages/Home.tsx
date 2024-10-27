@@ -1,38 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Typography, Avatar, Space, Row, Col, Spin, Alert } from 'antd';
-import { fetchMe } from '../services/apiService';
-import { IMe } from '../interfaces/IMe';
+import { Button, Typography, Avatar, Space, Row, Col } from 'antd';
+import { useAuth } from '../contexts/AuthContext';
 
 const { Title, Text } = Typography;
 
 const BOT_BASE_URL = 'https://t.me/Binance_Moonbix_bot/start?startApp=ref_89898989';
 
 const Home: React.FC = () => {
-    const [me, setMe] = useState<IMe | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+    const { me } = useAuth();
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const loadUserData = async () => {
-            setLoading(true);
-            try {
-                const response = await fetchMe();
-                setMe(response);
-            } catch (error: any) {
-                if (error.response?.status === 401) {
-                    navigate('/login');
-                } else {
-                    setError('Failed to load user data.');
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadUserData();
-    }, [navigate]);
 
     const calculateTotalScore = () => {
         if (me) {
@@ -66,14 +43,6 @@ const Home: React.FC = () => {
         marginBottom: '10px',
         borderRadius: '10px',
     };
-
-    if (loading) {
-        return <Spin size="large" style={{ display: 'block', margin: 'auto' }} />;
-    }
-
-    if (error) {
-        return <Alert message={error} type="error" showIcon />;
-    }
 
     return (
         <div style={{
