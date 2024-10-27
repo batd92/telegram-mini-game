@@ -5,7 +5,7 @@ import TokenHandler from './components/TokenHandler';
 import PrivateRoute from './components/PrivateRoute';
 
 import TelegramLogin from './pages/TelegramLogin';
-import Game from './pages/game/Game';
+import GameMain from './pages/game/GameMain';
 import Referral from './pages/Referral';
 import Home from './pages/Home';
 import Task from './pages/Task';
@@ -21,7 +21,7 @@ const App: React.FC = () => {
                         <Route path="/login" element={<TelegramLogin />} />
                         <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
                         <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
-                        <Route path="/game" element={<PrivateRoute><Game /></PrivateRoute>} />
+                        <Route path="/game" element={<PrivateRoute><GameMain /></PrivateRoute>} />
                         <Route path="/referral" element={<PrivateRoute><Referral /></PrivateRoute>} />
                         <Route path="/task" element={<PrivateRoute><Task /></PrivateRoute>} />
                         <Route path="/history" element={<PrivateRoute><UserHistory /></PrivateRoute>} />

@@ -13,6 +13,7 @@ interface IGameInfo {
     number_of_attempts: number;
     remaining_play: number;
     earned_points: number;
+    duration: number;
 }
 
 interface IAnalytics {
