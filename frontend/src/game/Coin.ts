@@ -1,33 +1,56 @@
-export class Coin implements Coin {
-    x: number;
-    y: number;
-    radius: number = 10;
-    duration: number = 60;
-    velocityX: number;
-    velocityY: number;
+import Phaser from 'phaser';
 
-    constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-        this.velocityX = (Math.random() - 0.5) * 4;
-        this.velocityY = (Math.random() - 0.5) * 4;
+export class Coin extends Phaser.Physics.Arcade.Sprite {
+    private alive: boolean = true;
+
+    constructor(scene: Phaser.Scene, x: number, y: number) {
+        super(scene, x, y, 'coin');
+        this.setOrigin(0.5, 0.5);
+        this.scene.add.existing(this);
+        this.scene.physics.world.enable(this);
+        this.setGravityY(0);
+
+        this.setDisplaySize(30, 30);
+        this.setTint(0xffff00);
+
+        this.flyOut();
     }
 
-    update() {
-        this.x += this.velocityX;
-        this.y += this.velocityY;
-        this.duration -= 1;
+    private flyOut(): void {
+        const angle = Phaser.Math.Between(0, 360);
+
+        const velocityX = Math.cos(Phaser.Math.DegToRad(angle)) * 200;
+        const velocityY = Math.sin(Phaser.Math.DegToRad(angle)) * 200;
+
+        this.setVelocity(velocityX, velocityY);
+
+        this.scene.tweens.add({
+            targets: this,
+            alpha: 0,
+            duration: 2000,
+            onComplete: () => {
+                this.destroyCoin();
+            },
+        });
+
+        this.scene.tweens.add({
+            targets: this,
+            angle: 360,
+            duration: 2000,
+            repeat: -1,
+        });
     }
 
-    draw(context: CanvasRenderingContext2D) {
-        context.beginPath();
-        context.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        context.fillStyle = "gold";
-        context.fill();
-        context.closePath();
+    update(): void {
+        if (!this.alive) return;
     }
 
-    isAlive() {
-        return this.duration > 0;
+    isAlive(): boolean {
+        return this.alive;
+    }
+
+    destroyCoin(): void {
+        this.alive = false;
+        this.destroy();
     }
 }

@@ -30,26 +30,34 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
         <div style={{ position: 'absolute', top: 15, left: 15, zIndex: 10 }}>
             <Space direction="vertical" size={16}>
                 <Space style={{
-                    backgroundColor: 'rgba(0, 51, 102, 0.9)',
-                    borderRadius: 8,
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    borderRadius: '12px',
                     padding: '5px 10px',
                     display: 'flex',
                     alignItems: 'center',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                    width: '200px',
                 }}>
-                    <Text style={{ color: '#ffffff' }} disabled={true}>
-                        ⏳ <Text strong style={{ color: '#FFD700' }}>{timeLeft}s</Text>
+                    <Text style={{ color: '#1C1C1E', fontSize: '18px', marginRight: '5px' }} disabled={true}>
+                        ⏳
                     </Text>
+                    <Text strong style={{ color: '#007AFF', fontSize: '20px' }}>{timeLeft}s</Text>
                 </Space>
 
                 <Space style={{
-                    backgroundColor: 'rgba(0, 51, 102, 0.9)',
-                    borderRadius: 8,
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    borderRadius: '12px',
                     padding: '5px 10px',
                     display: 'flex',
                     alignItems: 'center',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                    width: '200px',
                 }}>
-                    <Text style={{ color: '#ffffff' }} disabled={true}>
-                        🏆 <Text strong style={{ color: '#FFD700' }}>{score}</Text>
+                    <Text style={{ color: '#1C1C1E', fontSize: '18px', marginRight: '5px' }} disabled={true}>
+                        🏆
+                    </Text>
+                    <Text strong style={{ color: '#007AFF', fontSize: '20px' }}>
+                        {score.toLocaleString('en-US')}
                     </Text>
                 </Space>
 
@@ -58,25 +66,38 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
                         className="sound-toggle"
                         onClick={toggleSound}
                         style={{
-                            backgroundColor: isSoundOn ? 'rgba(0, 51, 102, 0.9)' : 'rgba(153, 0, 0, 0.9)',
+                            backgroundColor: isSoundOn ? '#007AFF' : '#FF3B30',
                             color: '#ffffff',
                             border: 'none',
-                            borderRadius: 8,
+                            borderRadius: '12px',
+                            padding: '5px 10px', // Padding trên/dưới: 5px, trái/phải: 10px
+                            fontSize: '18px',
+                            fontWeight: '600',
+                            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+                            transition: 'background-color 0.3s',
+                            width: '100px',
                         }}
                     >
-                        <strong>{isSoundOn ? '🔊' : '🔇'}</strong>
+                        <strong style={{ fontSize: '20px' }}>{isSoundOn ? '🔊' : '🔇'}</strong>
                     </Button>
                     <Button
                         className="home"
                         onClick={handleBackToHome}
                         style={{
-                            backgroundColor: 'rgba(0, 51, 102, 0.9)',
+                            backgroundColor: '#007AFF',
                             color: '#ffffff',
                             border: 'none',
-                            borderRadius: 8,
+                            borderRadius: '12px',
+                            padding: '5px 10px',
+                            fontSize: '18px',
+                            fontWeight: '600',
+                            marginLeft: '10px',
+                            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+                            transition: 'background-color 0.3s',
+                            width: '100px',
                         }}
                     >
-                        <strong>🏠</strong>
+                        <strong style={{ fontSize: '20px' }}>🏠</strong>
                     </Button>
                 </Space>
             </Space>

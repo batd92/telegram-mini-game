@@ -16,10 +16,84 @@ body {
     margin: 0;
 }
 
-.game-container, canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+/* Game */
+.game-container {
+    overflow: hidden;
+}
+
+.control {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+}
+
+.modal {
+    z-index: 20;
+}
+
+
+/* ModalEnd.css */
+.apple-modal .ant-modal-content {
+    border-radius: 15px;
+    animation: slideDown 0.4s ease;
+    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.apple-modal .ant-modal-header {
+    border-bottom: none;
+    text-align: center;
+}
+
+.apple-modal .ant-modal-title {
+    color: #333;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.modal-content {
+    text-align: center;
+    padding: 20px 15px;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.apple-button {
+    flex: 1;
+    padding: 10px;
+    font-weight: 600;
+    border-radius: 8px;
+    background-color: #f2f2f2;
+    color: #333;
+    border: none;
+    transition: background-color 0.2s ease;
+}
+
+.apple-button:hover {
+    background-color: #e0e0e0;
+}
+
+.play-again {
+    background-color: #007aff;
+    color: #fff;
+}
+
+.play-again:disabled {
+    background-color: #bfbfbf;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
