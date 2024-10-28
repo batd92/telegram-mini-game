@@ -8,6 +8,12 @@
 
 - **User-Friendly Interface**: The interface is easy to use and intuitive, allowing users to interact and engage with the game effortlessly.
 
+
+https://github.com/user-attachments/assets/8449da35-4f32-4d5d-8cbd-7a6d2f9a94f4
+
+
+- 
+
 ## Contributing
 
 If you want to contribute to this project, please create a fork of this repository, make your changes, and submit a pull request.
