@@ -6,19 +6,17 @@ import ModalEnd from './ModalEnd';
 import { useAuth } from '../../contexts/AuthContext';
 import { addGameHistory } from '../../services/apiService';
 import { Face } from '../../game/Face';
-
-const GAME_DURATION = 5;
-const INITIAL_ATTEMPTS = 3;
+import Footer from './Footer';
 
 const GameTab: React.FC = () => {
     const { me, setMe } = useAuth();
     const navigate = useNavigate();
 
-    const [gameState, setGameState] = useState({
+    const [game_state, setGameState] = useState({
         isSoundOn: true,
-        timeLeft: me?.game_info.duration || GAME_DURATION,
+        timeLeft: me?.game_info.duration || 0,
         score: me?.analytics.game_score || 0,
-        attempts: me?.game_info.number_of_attempts || INITIAL_ATTEMPTS,
+        remaining_play: me?.game_info.remaining_play || 0,
         isGameRunning: true,
         isModalOpen: false,
     });
@@ -58,7 +56,7 @@ const GameTab: React.FC = () => {
             face.on('pointerdown', () => {
                 setGameState((prev) => ({ ...prev, score: prev.score + 1 }));
 
-                if (gameState.isSoundOn) {
+                if (game_state.isSoundOn && game_state.isGameRunning) {
                     clickSound.play();
                 }
             });
@@ -66,7 +64,7 @@ const GameTab: React.FC = () => {
             this.time.addEvent({
                 delay: 1000,
                 callback: () => {
-                    if (gameState.isGameRunning) {
+                    if (game_state.isGameRunning) {
                         setGameState((prev) => {
                             const newTimeLeft = prev.timeLeft - 1;
                             if (newTimeLeft <= 0) {
@@ -76,7 +74,7 @@ const GameTab: React.FC = () => {
                         });
                     }
                 },
-                repeat: GAME_DURATION,
+                repeat: me?.game_info.duration || 0,
             });
         }
 
@@ -87,21 +85,21 @@ const GameTab: React.FC = () => {
         return () => {
             game.destroy(true);
         };
-    }, [gameState.isGameRunning, gameState.isSoundOn]);
+    }, [game_state.isGameRunning, game_state.isSoundOn]);
 
     const handlePlayAgain = useCallback(() => {
-        if (gameState.attempts >= 1) {
-            setGameState((prev) => ({ ...prev, attempts: prev.attempts - 1, timeLeft: GAME_DURATION, score: gameState.score, isGameRunning: true, isModalOpen: false }));
+        if (game_state.remaining_play >= 1) {
+            setGameState((prev) => ({ ...prev, attempts: prev.remaining_play - 1, timeLeft: (me?.game_info.duration || 0), score: game_state.score, isGameRunning: true, isModalOpen: false }));
         } else {
             navigate('/');
         }
-    }, [gameState.attempts, navigate]);
+    }, [game_state.remaining_play, navigate]);
 
     const handleBackToHome = useCallback(() => {
-        if (!gameState.isGameRunning) {
+        if (!game_state.isGameRunning) {
             navigate('/');
         }
-    }, [gameState.isGameRunning, navigate]);
+    }, [game_state.isGameRunning, navigate]);
 
     const handleSoundToggle = (isSoundOn: boolean) => {
         setGameState((prev) => ({ ...prev, isSoundOn }));
@@ -109,9 +107,9 @@ const GameTab: React.FC = () => {
 
     useEffect(() => {
         const loadData = async () => {
-            if (!gameState.isGameRunning && me) {
+            if (!game_state.isGameRunning && me) {
                 const response = await addGameHistory({
-                    score: gameState.score,
+                    score: (game_state.score - me?.analytics.game_score),
                 });
 
                 if (response) {
@@ -119,7 +117,7 @@ const GameTab: React.FC = () => {
                         ...me,
                         analytics: {
                             ...me.analytics,
-                            game_score: me.analytics.game_score + gameState.score,
+                            game_score: me.analytics.game_score + game_state.score,
                         },
                         game_info: {
                             ...me.game_info,
@@ -132,23 +130,24 @@ const GameTab: React.FC = () => {
             }
         };
         loadData();
-    }, [gameState.isGameRunning]);
+    }, [game_state.isGameRunning]);
 
     return (
         <div className="game-container">
             <ControlPanel
                 handleBackToHome={handleBackToHome}
-                initialSoundState={gameState.isSoundOn}
+                initialSoundState={game_state.isSoundOn}
                 onSoundToggle={handleSoundToggle}
-                score={gameState.score}
-                timeLeft={gameState.timeLeft}
+                score={game_state.score}
+                timeLeft={game_state.timeLeft}
             />
             <ModalEnd
-                isOpen={gameState.isModalOpen}
+                isOpen={game_state.isModalOpen}
                 onPlayAgain={handlePlayAgain}
                 onBackToHome={handleBackToHome}
-                attempts={gameState.attempts}
+                remaining_play={game_state.remaining_play - 1}
             />
+            <Footer></Footer>
         </div>
     );
 };

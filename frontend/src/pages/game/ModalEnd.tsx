@@ -3,14 +3,14 @@ import { Modal, Button } from 'antd';
 
 interface ModalProps {
     isOpen: boolean;
-    attempts: number;
+    remaining_play: number;
     onPlayAgain: () => void;
     onBackToHome: () => void;
 }
 
 const ModalEnd: React.FC<ModalProps> = ({
     isOpen,
-    attempts,
+    remaining_play,
     onPlayAgain,
     onBackToHome,
 }) => {
@@ -38,7 +38,7 @@ const ModalEnd: React.FC<ModalProps> = ({
         >
             <div className="modal-content">
                 <p style={{ fontSize: '1rem', color: '#555', marginBottom: '15px' }}>
-                    {attempts > 0 ? `You have ${attempts} attempts left to play again!` : "No attempts left!"}
+                    {remaining_play > 0 ? `You have ${remaining_play} attempts left to play again!` : "No attempts left!"}
                 </p>
 
                 <div className="button-group">
@@ -53,7 +53,7 @@ const ModalEnd: React.FC<ModalProps> = ({
                         onClick={handlePlayAgain}
                         type="default"
                         className="apple-button play-again"
-                        disabled={attempts <= 0}
+                        disabled={remaining_play <= 0}
                     >
                         Play Again
                     </Button>

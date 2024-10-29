@@ -26,20 +26,19 @@ export class TaskHistoryController {
         @Body() createTaskHistoryDto: CreateTaskHistoryDto,
         @Req() req: any
     ): Promise<TaskHistory> {
-        const user = req.user as { userId: string };
+        const user = req.user as { id: string };
 
         const forwardedFor = req.headers['x-forwarded-for'];
         const ip = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor ? forwardedFor.split(',')[0] : req.connection.remoteAddress;
+        const userAgent = req.headers['user-agent'];
 
-        const userAgent = req.get('User-Agent') || '';
-
-        return lastValueFrom(this.taskHistoryService.save(createTaskHistoryDto, user.userId, ip, userAgent));
+        return lastValueFrom(this.taskHistoryService.save(createTaskHistoryDto, user.id, ip, userAgent));
     }
 
     @Get('total-score')
     @HasRoles(RoleType.USER)
     getTotalScore(@Req() req: any): Observable<number> {
-        const user = req.user as { userId: string };
-        return this.taskHistoryService.getTotalScore(user.userId);
+        const user = req.user as { id: string };
+        return this.taskHistoryService.getTotalScore(user.id);
     }
 }

@@ -4,9 +4,5 @@ export interface ResTaskDto {
     link: string;
     des: string;
     status: number;
-    task_history: {
-        score: number;
-        ip: string; 
-        browser: string;
-    }
+    history?: boolean; 
 }

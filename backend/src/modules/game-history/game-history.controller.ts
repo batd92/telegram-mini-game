@@ -23,8 +23,8 @@ export class GameHistoryController {
     @HasRoles(RoleType.USER)
     @Get()
     getGameHistorys(@Req() req: any): Observable<{ data: ResListGameHistoryDto[], lastRecord: string | null }> {
-        const user = req.user as { userId: string };
-        return this.gameHistoryService.getGameHistorys(user.userId);
+        const user = req.user as { id: string };
+        return this.gameHistoryService.getGameHistorys(user.id);
     }
 
     @HasRoles(RoleType.USER)
@@ -37,9 +37,7 @@ export class GameHistoryController {
 
         const forwardedFor = req.headers['x-forwarded-for'];
         const ip = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor ? forwardedFor.split(',')[0] : req.connection.remoteAddress;
-
-        const userAgent = req.get('User-Agent') || '';
-
+        const userAgent = req.headers['user-agent'];
         return lastValueFrom(this.gameHistoryService.save(createGameHistoryDto, user.id, ip, userAgent));
     }
 }
