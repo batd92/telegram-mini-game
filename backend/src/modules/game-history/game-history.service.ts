@@ -1,8 +1,8 @@
 import { ForbiddenException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Observable, catchError, from, map, mergeMap, of } from 'rxjs';
 import { CreateGameHistoryDto } from './dto/create-game-history.dto';
-import { GAME_HISTORY_MODEL, GAME_PROFILE_MODEL } from 'database/constants';
+import { GAME_HISTORY_MODEL } from 'database/constants';
 import { GameHistory, GameHistoryDocument } from 'database/schemas/game-history.schema';
 import { ResGameHistoryDto, ResListGameHistoryDto } from './dto/response.game-history.dto';
 import { GameProfileService } from 'modules/game-profile/game-profile.service';
@@ -14,27 +14,35 @@ export class GameHistoryService {
         @Inject(forwardRef(() => GameProfileService)) private readonly gameProfileService: GameProfileService
     ) { }
 
-
     getGameHistorys(user_id: string): Observable<{ data: ResListGameHistoryDto[], lastRecord: string | null }> {
-        return from(
-            this.gameHistoryModel.find<GameHistoryDocument>({ user_id })
+        return new Observable((observer) => {
+            this.gameHistoryModel.find({ user_id: new Types.ObjectId(user_id)})
                 .sort({ createdAt: -1 })
                 .exec()
-                .then((data) => ({
-                    data: data.map((rd) => ({
-                        score: rd.score,
-                        createdAt: rd['createdAt'],
-                        _id: rd._id.toString()
-                    })),
-                    lastRecord: data.length > 0 ? data[data.length - 1]._id.toString() : null,
-                }))
-        );
+                .then((data) => {
+                    const result = {
+                        data: data.map((rd) => ({
+                            score: rd.score,
+                            createdAt: rd['createdAt'],
+                            _id: rd._id.toString()
+                        })),
+                        lastRecord: data.length > 0 ? data[data.length - 1]._id.toString() : null,
+                    };
+                    observer.next(result);
+                    observer.complete();
+                })
+                .catch((err) => {
+                    console.error('Error fetching game history:', err);
+                    observer.error(err);
+                });
+        });
     }
+    
 
     getTotalScore(user_id: string): Observable<number> {
         return from(
             this.gameHistoryModel.aggregate([
-                { $match: { user_id } },
+                { $match: { user_id: new Types.ObjectId(user_id) } },
                 { $group: { _id: null, totalScore: { $sum: '$score' } } },
             ])
                 .then(result => result.length > 0 ? result[0].totalScore : 0)
@@ -52,15 +60,16 @@ export class GameHistoryService {
                 }
 
                 const newGameHistory = new this.gameHistoryModel({
-                    ...createGameHistoryDto,
                     user_id: userId,
                     ip: ip,
                     browser: userAgent,
+                    score: createGameHistoryDto.score,
+                    data: createGameHistoryDto.data
                 });
 
                 gameUser.remaining_play--;
                 gameUser.number_of_attempts++;
-
+                
                 return from(Promise.all([
                     newGameHistory.save(),
                     gameUser.save(),
@@ -72,7 +81,7 @@ export class GameHistoryService {
                             status: true,
                         } as ResGameHistoryDto);
                     }),
-                    catchError(() => {
+                    catchError((err) => {
                         return of({
                             number_of_attempts: gameUser.number_of_attempts,
                             remaining_play: gameUser.remaining_play,
@@ -81,7 +90,7 @@ export class GameHistoryService {
                     })
                 );
             }),
-            catchError(() => {
+            catchError((err) => {
                 return of({
                     number_of_attempts: 0,
                     remaining_play: 0,

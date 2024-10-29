@@ -39,8 +39,9 @@ export class GameProfileService {
                                 return of(gameProfile);
                             }
 
+
                             const timeSinceLastGame = new Date().getTime() - new Date(lastGameHistory['createdAt']).getTime();
-                            const newRemainingPlay = Math.floor(timeSinceLastGame / (10 * 1000));
+                            const newRemainingPlay = Math.floor(timeSinceLastGame / (10 * 60 * 1000));
 
                             if (newRemainingPlay > 0) {
                                 gameProfile.remaining_play = Math.min(newRemainingPlay, 5);;

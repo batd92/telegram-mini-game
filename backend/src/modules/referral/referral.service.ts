@@ -1,5 +1,5 @@
 import { Inject, Injectable, Scope } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { from, map, Observable } from 'rxjs';
 import { REFERRAL_MODEL } from 'database/constants';
 import { Referral } from 'database/schemas/referral.schema';
@@ -17,7 +17,7 @@ export class ReferralService {
     getReferralStats(user_id: string): Observable<{ data: ReferredUser[] }> {
         return from(
             this.referralModel.aggregate([
-                { $match: { user_id: user_id } },
+                { $match: { user_id: new Types.ObjectId(user_id)}},
                 {
                     $group: {
                         _id: null,

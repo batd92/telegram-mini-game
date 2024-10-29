@@ -15,3 +15,13 @@ export const getClientCoordinates = (
 
     return { clientX, clientY };
 };
+
+
+export const formatDateTime = (dateTime: string) => {
+    try {
+        const date = new Date(dateTime);
+        return date.toISOString().replace('T', ' ').slice(0, 19).replace(/-/g, '/');
+    } catch {
+        return '';
+    }
+}

@@ -8,8 +8,7 @@
 
 - **User-Friendly Interface**: The interface is easy to use and intuitive, allowing users to interact and engage with the game effortlessly.
 
-
-- 
+Video memo: [https://www.youtube.com/shorts/5aJJyCqdPyU](https://youtube.com/shorts/5aJJyCqdPyU?si=xfohTHK5TMbVEh8b)
 
 ## Contributing
 

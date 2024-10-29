@@ -3,6 +3,7 @@ import {
     Get,
     UseGuards,
     Query,
+    Req,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { TaskService } from './task.service';
@@ -19,7 +20,8 @@ export class TaskController {
     constructor(private readonly taskService: TaskService) { }
 
     @Get()
-    getTask(@Query('keyword') search: string): Observable<{ data: ResTaskDto[], lastRecord: string | null }> {
-        return this.taskService.getTasks(search);
+    getTask(@Req() req: any): Observable<{ data: ResTaskDto[], lastRecord: string | null }> {
+        const user = req.user as { id: string };
+        return this.taskService.getTasks(user.id);
     }
 }
