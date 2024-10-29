@@ -18,8 +18,8 @@ export const fetchTasks = async () => {
     return response.data;
 };
 
-export const updateTaskHistory = async (body: { task_id: string }) => {
-    const response = await axiosInstance.put(`/task-history`, body);
+export const updateTaskHistory = async (body: { task_id: string, data: string }) => {
+    const response = await axiosInstance.post(`/task-history`, body);
     return response.data;
 };
 

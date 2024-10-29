@@ -29,8 +29,8 @@ export class GameHistory {
     @Prop({ required: true })
     browser: string;
 
-    @Prop({ required: true, default: '' })
-    data: string;
+    @Prop({ default: '' })
+    data?: string;
 
     @Type(() => TelegramUser)
     user: TelegramUser;

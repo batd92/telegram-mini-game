@@ -1,5 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { TaskHistory } from 'database/schemas/task-history.schema';
 import { Observable, from, map, switchMap } from 'rxjs';
 import { CreateTaskHistoryDto } from './dto/create-task-history.dto';
@@ -20,6 +20,7 @@ export class TaskHistoryService {
                     throw new Error('Task does not exist or has been deleted');
                 }
     
+          
                 return from(this.taskHistoryModel.findOne({ user_id: user_id, task_id: createTaskHistoryDto.task_id }).exec())
                     .pipe(
                         map(existingTaskHistory => ({ existingTaskHistory, task }))
@@ -35,18 +36,20 @@ export class TaskHistoryService {
                     user_id: user_id,
                     ip: ip,
                     browser: userAgent,
-                    score: task.score
+                    score: task.score,
+                    data: ''
                 });
-    
+                console.log('task', user_id, )
                 return from(newTaskHistory.save());
             })
         );
     }
 
     getTotalScore(user_id: string): Observable<number> {
+
         return from(
             this.taskHistoryModel.aggregate([
-                { $match: { user_id } },
+                { $match: { user_id: new Types.ObjectId(user_id) } },
                 { $group: { _id: null, totalScore: { $sum: '$score' } } },
             ])
             .then(result => result.length > 0 ? result[0].totalScore : 0)

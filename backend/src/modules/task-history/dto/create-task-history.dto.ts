@@ -6,8 +6,4 @@ export class CreateTaskHistoryDto {
     @IsString()
     @IsNotEmpty()
     task_id: string;
-
-    @ApiProperty({ example: 'extra data about the task', required: false })
-    @IsString()
-    data?: string;
 }
