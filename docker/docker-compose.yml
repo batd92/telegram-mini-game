@@ -1,14 +1,54 @@
 version: '3.8'
 
 services:
-    mongodb:
-        image: mongo:latest
-        container_name: mongodb
-        ports:
-            - "27017:27017"
-        volumes:
-            - mongo-data:/data/db
+  mongo1:
+    hostname: mongo1
+    container_name: localmongo1
+    image: mongo
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
+    restart: always
+    networks:
+      - mongo-network
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0"]
+    volumes:
+      - ./volumes/mongodb/data1/db:/data/db
+      - ./volumes/mongodb/data1/configdb:/data/configdb
 
-volumes:
-    mongo-data:
-        driver: local
+  mongo2:
+    hostname: mongo2
+    container_name: localmongo2
+    image: mongo
+    expose:
+      - 27017
+    ports:
+      - 27018:27017
+    restart: always
+    networks:
+      - mongo-network
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0"]
+    volumes:
+      - ./volumes/mongodb/data2/db:/data/db
+      - ./volumes/mongodb/data2/configdb:/data/configdb
+
+  mongo3:
+    hostname: mongo3
+    container_name: localmongo3
+    image: mongo
+    expose:
+      - 27017
+    ports:
+      - 27019:27017
+    restart: always
+    networks:
+      - mongo-network
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0"]
+    volumes:
+      - ./volumes/mongodb/data3/db:/data/db
+      - ./volumes/mongodb/data3/configdb:/data/configdb
+
+networks:
+  mongo-network:
+    driver: bridge
