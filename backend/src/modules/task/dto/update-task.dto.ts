@@ -1,11 +1,10 @@
 import { IsNotEmpty } from 'class-validator';
 export class UpdateTaskDto {
-
     @IsNotEmpty()
     readonly title: string;
 
     @IsNotEmpty()
-    readonly des: string;
+    readonly description: string;
 
     @IsNotEmpty()
     readonly link: string;

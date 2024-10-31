@@ -1,82 +1,82 @@
-import { forwardRef, Inject, Injectable, Scope } from '@nestjs/common';
-import { Model } from 'mongoose';
-import { from, map, mergeMap, Observable, of } from 'rxjs';
-import { CreateGameProfileDto } from './dto/create-game-user.dto';
-import { GAME_PROFILE_MODEL } from 'database/constants';
-import { GameProfile, GameProfileDocument } from 'database/schemas/game-profile.schema';
-import { GameHistoryService } from 'modules/game-history/game-history.service';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { from, Observable } from 'rxjs';
+import { CreateGameProfileDto } from './dto/request.dto';
+import { GameProfile } from '@prisma/client';
 
 @Injectable()
 export class GameProfileService {
-    constructor(
-        @Inject(GAME_PROFILE_MODEL) private gameProfileModel: Model<GameProfile>,
-        @Inject(forwardRef(() => GameHistoryService)) private readonly gameHistoryService: GameHistoryService
-    ) {
+    constructor(private readonly prisma: PrismaService) {
         console.log('GameProfileService initialized ...');
     }
 
-    findById(user_id: string): Observable<GameProfileDocument | null> {
+    findById(user_id: string): Observable<GameProfile | null> {
         return from(
-            this.gameProfileModel.findOne({ user_id })
-                .populate('user_id', '_id user_name telegram_id')
-                .exec()
+            this.prisma.gameProfile.findFirst({
+                where: { user_id: user_id },
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            user_name: true,
+                            telegram_id: true,
+                        },
+                    },
+                },
+            }),
         );
     }
 
-    getGameProfiler(user_id: string): Observable<GameProfileDocument | null> {
+    getGameProfiler(user_id: string): Observable<GameProfile | null> {
         return from(
-            this.gameProfileModel.findOne({ user_id }).exec()
-        ).pipe(
-            mergeMap((gameProfile) => {
+            this.prisma.$transaction(async (prisma) => {
+                const gameProfile = await prisma.gameProfile.findFirst({
+                    where: { user_id: user_id },
+                });
+
                 if (!gameProfile) {
-                    return of(null);
+                    return null;
                 }
 
                 if (gameProfile.remaining_play <= 0) {
-                    return this.gameHistoryService.getLastGameHistory(user_id).pipe(
-                        mergeMap((lastGameHistory) => {
-                            if (!lastGameHistory) {
-                                return of(gameProfile);
-                            }
+                    const lastGameHistory = await prisma.gameHistory.findFirst({
+                        where: { user_id: user_id },
+                    });
 
+                    if (!lastGameHistory) {
+                        return gameProfile;
+                    }
 
-                            const timeSinceLastGame = new Date().getTime() - new Date(lastGameHistory['createdAt']).getTime();
-                            const newRemainingPlay = Math.floor(timeSinceLastGame / (10 * 60 * 1000));
-
-                            if (newRemainingPlay > 0) {
-                                gameProfile.remaining_play = Math.min(newRemainingPlay, 5);;
-                            }
-
-                            return from(gameProfile.save()).pipe(
-                                map(() => gameProfile)
-                            );
-                        })
+                    const timeSinceLastGame =
+                        new Date().getTime() -
+                        new Date(lastGameHistory.created_at).getTime();
+                    const newRemainingPlay = Math.floor(
+                        timeSinceLastGame / (10 * 60 * 1000),
                     );
+
+                    const updatedGameProfile = await prisma.gameProfile.update({
+                        where: { id: gameProfile.id },
+                        data: {
+                            remaining_play: Math.min(newRemainingPlay, 5),
+                        },
+                    });
+
+                    return {
+                        ...updatedGameProfile,
+                        remaining_play: Math.min(newRemainingPlay, 5),
+                    };
                 }
 
-                return of(gameProfile);
-            })
+                return gameProfile;
+            }),
         );
     }
 
     save(createGameUserDto: CreateGameProfileDto): Observable<GameProfile> {
-        const newGameUser = new this.gameProfileModel(createGameUserDto);
-        return from(newGameUser.save());
-    }
-
-    addNumberOfAttempts(userId: string): void {
-        this.gameProfileModel.findOneAndUpdate(
-            { user_id: userId },
-            { $inc: { number_of_attempts: 1 } },
-            { new: true }
-        ).exec();
-    }
-
-    addRemainingPlay(userId: string, playCount: number): void {
-        this.gameProfileModel.findOneAndUpdate(
-            { user_id: userId },
-            { $set: { remaining_play: playCount } },
-            { new: true }
-        ).exec();
+        return from(
+            this.prisma.gameProfile.create({
+                data: createGameUserDto,
+            }),
+        );
     }
 }

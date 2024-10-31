@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { from, Observable, of, throwError } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { mergeMap, map } from 'rxjs/operators';
 import { TelegramUserService } from '../modules/telegram-user/telegram-user.service';
 import { AccessToken } from './interface/access-token.interface';
@@ -12,18 +12,40 @@ export class AuthService {
     constructor(
         private telegramUserService: TelegramUserService,
         private jwtService: JwtService,
-    ) { }
+    ) {}
 
-    validateUser(user_name: string, telegram_id: string): Observable<UserPrincipal> {
-        return this.telegramUserService.findByUsernameAndTelegramId(user_name, telegram_id).pipe(
-            mergeMap(user => {
-                if (!user) {
-                    throw new UnauthorizedException('user_name or telegram_id is not matched');
-                }
-                const { _id, user_name, telegram_id } = user;
-                return of({ id: _id, telegram_id, user_name } as UserPrincipal);
-            })
+    async validateUser(
+        user_name: string,
+        telegram_id: string,
+    ): Promise<UserPrincipal> {
+        const user = await this.telegramUserService.findByUsernameAndTelegramId(
+            user_name,
+            telegram_id,
         );
+
+        if (!user) {
+            throw new UnauthorizedException(
+                'user_name or telegram_id is not matched',
+            );
+        }
+
+        const { id, user_name: username, telegram_id: tgId } = user;
+        return {
+            id: id,
+            telegram_id: tgId,
+            user_name: username,
+        } as UserPrincipal;
+    }
+
+    async validateUserAdmin(
+        user_name: string,
+        telegram_id: string,
+    ): Promise<UserPrincipal> {
+        return {
+            id: '',
+            telegram_id: '',
+            user_name: '',
+        } as UserPrincipal;
     }
 
     login(user: UserPrincipal): Observable<AccessToken> {

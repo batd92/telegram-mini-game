@@ -1,3 +1,3 @@
-export interface AccessToken{
-    readonly access_token:string
+export interface AccessToken {
+    readonly access_token: string;
 }

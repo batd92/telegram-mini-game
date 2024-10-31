@@ -1,12 +1,10 @@
 export interface IMe {
-    _id: string;
     telegram_id: string;
     user_name: string;
-    first_name: string;
-    language_code: string;
+    name: string;
     id: string;
-    analytics: IAnalytics,
-    game_info: IGameInfo
+    analytics: IAnalytics;
+    game_info: IGameInfo;
 }
 interface IGameInfo {
     number_of_attempts: number;

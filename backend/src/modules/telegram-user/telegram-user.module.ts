@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from '../../database/database.module';
 import { ReferralModule } from 'modules/referral/referral.module';
 import { GameHistoryModule } from 'modules/game-history/game-history.module';
 import { TaskHistoryModule } from 'modules/task-history/task-history.module';
@@ -9,16 +8,13 @@ import { TelegramUserController } from './telegram-user.controller';
 
 @Module({
     imports: [
-        DatabaseModule,
         ReferralModule,
         GameHistoryModule,
         TaskHistoryModule,
         GameProfileModule,
     ],
-    providers: [
-        TelegramUserService,
-    ],
+    providers: [TelegramUserService],
     exports: [TelegramUserService],
     controllers: [TelegramUserController],
 })
-export class TelegramUserModule { }
+export class TelegramUserModule {}

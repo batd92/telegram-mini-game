@@ -8,26 +8,28 @@ import { AuthenticatedRequest } from './interface/authenticated-request.interfac
 
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService) { }
+    constructor(private authService: AuthService) {}
 
     @Post('login')
-    login(@Req() req: AuthenticatedRequest, @Res() res: Response): Observable<Response> {
-        console.log('xxxxxxx', req.body)
-        return this.authService.login(req.body)
-            .pipe(
-                map(token => {
-                    return res
-                        .header('Authorization', 'Bearer ' + token.access_token)
-                        .json(token)
-                        .send()
-                })
-            );
+    login(
+        @Req() req: AuthenticatedRequest,
+        @Res() res: Response,
+    ): Observable<Response> {
+        console.log('xxxxxxx', req.body);
+        return this.authService.login(req.body).pipe(
+            map((token) => {
+                return res
+                    .header('Authorization', 'Bearer ' + token.access_token)
+                    .json(token)
+                    .send();
+            }),
+        );
     }
 
     @UseGuards(LocalAuthGuard)
     @Post('logout')
     logout(@Req() req: AuthenticatedRequest, @Res() res: Response) {
-        req.session.destroy(err => {
+        req.session.destroy((err) => {
             if (err) {
                 return res.status(500).json({ message: 'Logout failed' });
             }

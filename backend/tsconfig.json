@@ -13,7 +13,12 @@
         "paths": {
             "@app/*": ["src/app/*"],
             "@core/*": ["src/core/*"],
-            "@socket/*": ["src/gateway/*"]
+            "@socket/*": ["src/gateway/*"],
+            "@interceptors/*": ["interceptors/*"],
+            "@constants/*": ["constants/*"],
+            "@config/*": ["config/*"],
+            "@filters/*": ["filters/*"],
+            "@modules/*": ["modules/*"],
         },
         "incremental": true
     }

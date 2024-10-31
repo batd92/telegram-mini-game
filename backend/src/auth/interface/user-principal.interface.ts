@@ -1,4 +1,4 @@
-import { RoleType } from "shared/enum/role-type.enum";
+import { RoleType } from 'shared/enum/role-type.enum';
 
 export interface UserPrincipal {
     readonly user_name: string;

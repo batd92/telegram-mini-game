@@ -1,61 +1,44 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
-import { Model, Types } from 'mongoose';
+import { Inject, Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import { from, map, Observable } from 'rxjs';
-import { REFERRAL_MODEL } from 'database/constants';
-import { Referral } from 'database/schemas/referral.schema';
-import { CreateReferralDto } from './dto/create-referral.dto';
-import { ReferredUser } from './dto/response.referral.dto';
+import { CreateReferralDto } from './dto/request.dto';
+import { ReferredUser } from './dto/response.dto';
 
 @Injectable()
 export class ReferralService {
-    constructor(
-        @Inject(REFERRAL_MODEL) private referralModel: Model<Referral>,
-    ) {
+    constructor(private readonly prisma: PrismaService) {
         console.log('ReferralService initialized ...');
     }
 
     getReferralStats(user_id: string): Observable<{ data: ReferredUser[] }> {
         return from(
-            this.referralModel.aggregate([
-                { $match: { user_id: new Types.ObjectId(user_id)}},
-                {
-                    $group: {
-                        _id: null,
-                        referredUsers: { $push: '$referred_user_id' }
+            this.prisma.referral.findMany({
+                where: { user_id: user_id },
+                include: {
+                    referred_user: {
+                        select: {
+                            id: true,
+                            user_name: true,
+                            telegram_id: true,
+                        },
                     },
                 },
-                {
-                    $lookup: {
-                        from: 'users',
-                        localField: 'referredUsers',
-                        foreignField: '_id',
-                        as: 'referredUserDetails'
-                    }
-                },
-                {
-                    $project: {
-                        _id: 0,
-                        referredUsers: { $map: {
-                            input: '$referredUserDetails',
-                            as: 'user',
-                            in: {
-                                _id: '$$user._id',
-                                user_name: '$$user.user_name',
-                                telegram_id: '$$user.telegram_id'
-                            }
-                        }}
-                    }
-                }
-            ]).exec()
+            }),
         ).pipe(
             map((result) => {
-                const referredUsers = result.length > 0 ? result[0].referredUsers : [];
-                return { data: referredUsers  };
-            })
+                const referredUsers = result.map((referral) => ({
+                    _id: referral.referred_user.id,
+                    user_name: referral.referred_user.user_name,
+                    telegram_id: referral.referred_user.telegram_id,
+                }));
+                return { data: referredUsers };
+            }),
         );
     }
 
-    save(refef: CreateReferralDto): void {
-        this.referralModel.create(refef);
+    save(refef: CreateReferralDto): Observable<void> {
+        return from(this.prisma.referral.create({ data: refef })).pipe(
+            map(() => undefined),
+        );
     }
 }
