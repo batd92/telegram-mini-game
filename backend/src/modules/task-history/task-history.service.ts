@@ -1,80 +1,110 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { Model, Types } from 'mongoose';
-import { TaskHistory } from 'database/schemas/task-history.schema';
+import {
+    Injectable,
+    NotFoundException,
+    ConflictException,
+} from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import { Observable, from, map, switchMap } from 'rxjs';
-import { CreateTaskHistoryDto } from './dto/create-task-history.dto';
-import { TASK_HISTORY_MODEL } from 'database/constants';
+import { CreateTaskHistoryDto } from './dto/request.dto';
 import { TaskService } from 'modules/task/task.service';
+import { Task, TaskHistory } from '@prisma/client';
 
 @Injectable()
 export class TaskHistoryService {
     constructor(
-        @Inject(TASK_HISTORY_MODEL) private taskHistoryModel: Model<TaskHistory>,
-        private readonly taskService: TaskService
+        private readonly prisma: PrismaService,
+        private readonly taskService: TaskService,
     ) {}
 
-    save(createTaskHistoryDto: CreateTaskHistoryDto, user_id: string, ip: string, userAgent: string): Observable<TaskHistory> {
+    save(
+        createTaskHistoryDto: CreateTaskHistoryDto,
+        user_id: string,
+        ip: string,
+        userAgent: string,
+    ): Observable<TaskHistory> {
         return this.taskService.findById(createTaskHistoryDto.task_id).pipe(
-            switchMap(task => {
-                if (!task || task.status === 1) {
-                    throw new Error('Task does not exist or has been deleted');
-                }
-    
-          
-                return from(this.taskHistoryModel.findOne({ user_id: user_id, task_id: createTaskHistoryDto.task_id }).exec())
-                    .pipe(
-                        map(existingTaskHistory => ({ existingTaskHistory, task }))
+            switchMap((task: Task | null) => {
+                if (!task || task.status === 'COMPLETED') {
+                    throw new NotFoundException(
+                        'Task does not exist or has been deleted',
                     );
+                }
+
+                return from(
+                    this.prisma.taskHistory.findFirst({
+                        where: {
+                            user_id: user_id,
+                            task_id: createTaskHistoryDto.task_id,
+                        },
+                    }),
+                ).pipe(
+                    map((existingTaskHistory) => ({
+                        existingTaskHistory,
+                        task,
+                    })),
+                );
             }),
             switchMap(({ existingTaskHistory, task }) => {
                 if (existingTaskHistory) {
-                    throw new Error('TaskHistory already exists for this user and task');
+                    throw new ConflictException(
+                        'TaskHistory already exists for this user and task',
+                    );
                 }
-    
-                const newTaskHistory = new this.taskHistoryModel({
-                    ...createTaskHistoryDto,
-                    user_id: user_id,
-                    ip: ip,
-                    browser: userAgent,
-                    score: task.score,
-                    data: ''
-                });
-                console.log('task', user_id, )
-                return from(newTaskHistory.save());
-            })
+
+                return from(
+                    this.prisma.taskHistory.create({
+                        data: {
+                            user_id: user_id,
+                            task_id: createTaskHistoryDto.task_id,
+                            score: task.score,
+                            ip: ip,
+                            browser: userAgent,
+                            data: '',
+                        },
+                    }),
+                );
+            }),
         );
     }
 
     getTotalScore(user_id: string): Observable<number> {
-
         return from(
-            this.taskHistoryModel.aggregate([
-                { $match: { user_id: new Types.ObjectId(user_id) } },
-                { $group: { _id: null, totalScore: { $sum: '$score' } } },
-            ])
-            .then(result => result.length > 0 ? result[0].totalScore : 0)
+            this.prisma.taskHistory
+                .aggregate({
+                    where: { user_id: user_id },
+                    _sum: { score: true },
+                })
+                .then((result) => result._sum.score ?? 0),
         );
     }
 
     findById(id: string): Observable<TaskHistory> {
         return from(
-            this.taskHistoryModel.findById(id).exec().then((taskHistory) => {
-                if (!taskHistory) {
-                    throw new NotFoundException('TaskHistory not found');
-                }
-                return taskHistory;
-            })
+            this.prisma.taskHistory
+                .findUnique({
+                    where: { id },
+                })
+                .then((taskHistory) => {
+                    if (!taskHistory) {
+                        throw new NotFoundException('TaskHistory not found');
+                    }
+                    return taskHistory;
+                }),
         );
     }
 
     delete(id: string): Observable<TaskHistory> {
         return from(
-            this.taskHistoryModel.findByIdAndDelete(id).exec().then((taskHistory) => {
-                if (!taskHistory) {
-                    throw new NotFoundException('TaskHistory not found');
-                }
-                return taskHistory;
-            })
+            this.prisma.taskHistory
+                .delete({
+                    where: { id },
+                })
+                .then((taskHistory) => {
+                    if (!taskHistory) {
+                        throw new NotFoundException('TaskHistory not found');
+                    }
+                    return taskHistory;
+                }),
         );
     }
 }

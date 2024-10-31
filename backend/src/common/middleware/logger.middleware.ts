@@ -14,12 +14,16 @@ export class LoggerMiddleware implements NestMiddleware {
         const startTime = Date.now();
         const requestTime = new Date().toISOString();
 
-        this.logger.log(`Request ID: ${requestId} - Received at: ${requestTime} - Incoming request: ${req.method} ${req.url} - IP: ${ip} - User-Agent: ${userAgent}`);
+        this.logger.log(
+            `Request ID: ${requestId} - Received at: ${requestTime} - Incoming request: ${req.method} ${req.url} - IP: ${ip} - User-Agent: ${userAgent}`,
+        );
 
         res.on('finish', () => {
             const duration = Date.now() - startTime;
             const statusCode = res.statusCode;
-            this.logger.log(`Request ID: ${requestId} - Response: ${statusCode} - Duration: ${duration}ms`);
+            this.logger.log(
+                `Request ID: ${requestId} - Response: ${statusCode} - Duration: ${duration}ms`,
+            );
         });
 
         next();

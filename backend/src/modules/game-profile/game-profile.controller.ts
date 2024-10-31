@@ -1,6 +1,4 @@
-import { Controller } from "@nestjs/common";
+import { Controller } from '@nestjs/common';
 
 @Controller('game-profile')
-export class GameProfileController {
-    
-}
+export class GameProfileController {}

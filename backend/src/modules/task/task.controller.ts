@@ -1,11 +1,4 @@
-import {
-    Controller,
-    Get,
-    UseGuards,
-    Query,
-    Req,
-} from '@nestjs/common';
-import { Observable } from 'rxjs';
+import { Controller, Get, UseGuards, Req } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { RoleType } from '../../shared/enum/role-type.enum';
 import { HasRoles } from '../../auth/guard/has-roles.decorator';
@@ -17,10 +10,12 @@ import { ResTaskDto } from './dto/response.task.dto';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @HasRoles(RoleType.USER)
 export class TaskController {
-    constructor(private readonly taskService: TaskService) { }
+    constructor(private readonly taskService: TaskService) {}
 
     @Get()
-    getTask(@Req() req: any): Observable<{ data: ResTaskDto[], lastRecord: string | null }> {
+    async getTask(
+        @Req() req: any,
+    ): Promise<{ data: ResTaskDto[]; lastRecord: string | null }> {
         const user = req.user as { id: string };
         return this.taskService.getTasks(user.id);
     }

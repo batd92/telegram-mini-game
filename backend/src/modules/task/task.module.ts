@@ -1,16 +1,12 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from '../../database/database.module';
 import { TaskController } from './task.controller';
 import { TaskService } from './task.service';
 import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
-    imports: [
-        DatabaseModule,
-        CacheModule.register(),
-    ],
+    imports: [CacheModule.register()],
     controllers: [TaskController],
     providers: [TaskService],
-    exports: [TaskService]
+    exports: [TaskService],
 })
-export class TaskModule { }
+export class TaskModule {}

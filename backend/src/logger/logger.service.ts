@@ -28,7 +28,7 @@ export class LoggerService {
             transports: [transport],
             format: winston.format.combine(
                 winston.format.timestamp(),
-                winston.format.json()
+                winston.format.json(),
             ),
         });
 

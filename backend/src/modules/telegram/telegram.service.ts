@@ -3,17 +3,18 @@ import { Telegraf, Context } from 'telegraf';
 import axios from 'axios';
 import { ITelegramUser } from './interfaces/telegram.interface';
 import { TelegramUserService } from 'modules/telegram-user/telegram-user.service';
-const FRONTEND_BASE_URL = process.env.FRONTEND_BASE_URL || 'http://localhost:4000';
-const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000';
+const FRONTEND_BASE_URL =
+    process.env.FRONTEND_BASE_URL || 'http://localhost:4000';
+const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000/api';
 
 @Injectable()
 export class TelegramService implements OnModuleInit, OnModuleDestroy {
     private bot: Telegraf<Context>;
-    private readonly token: string = process.env.TELEGRAM_BOT_TOKEN || '7363203830:AAE1fgOfeZCQ5cxtUpuFylgdM3qvFoEi4fA';
+    private readonly token: string =
+        process.env.TELEGRAM_BOT_TOKEN ||
+        '7363203830:AAE1fgOfeZCQ5cxtUpuFylgdM3qvFoEi4fA';
 
-    constructor(
-        private readonly telegramUserService: TelegramUserService
-    ) {
+    constructor(private readonly telegramUserService: TelegramUserService) {
         this.bot = new Telegraf<Context>(this.token);
     }
 
@@ -28,7 +29,9 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
     private startListening() {
         this.bot.command('start', (ctx) => this.handleStartCommand(ctx));
         this.bot.command('play', (ctx) => this.handlePlayCommand(ctx));
-        this.bot.command('help', (ctx) => ctx.reply('Here are the commands you can use: /start, /help'));
+        this.bot.command('help', (ctx) =>
+            ctx.reply('Here are the commands you can use: /start, /help'),
+        );
 
         this.bot.launch();
     }
@@ -56,14 +59,21 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
         }
 
         try {
-            const telegramUser = await this.telegramUserService.findByAuthReq(user.id.toString()) || await this.telegramUserService.register(user);
+            const telegramUser =
+                (await this.telegramUserService.findByAuthReq(
+                    user.id.toString(),
+                )) || (await this.telegramUserService.register(user));
+
             // Login
-            const tokenResponse = await axios.post(API_BASE_URL + '/auth/login', {
-                user_name: telegramUser.user_name,
-                telegram_id: user.id,
-                roles: telegramUser.roles,
-                id: telegramUser._id
-            });
+            const tokenResponse = await axios.post(
+                API_BASE_URL + '/v1/auth/login',
+                {
+                    user_name: telegramUser.user_name,
+                    telegram_id: user.id,
+                    roles: telegramUser.roles,
+                    id: telegramUser.id,
+                },
+            );
 
             const token = tokenResponse.data.access_token;
 
@@ -71,14 +81,14 @@ export class TelegramService implements OnModuleInit, OnModuleDestroy {
             console.log('websiteUrl', websiteUrl);
             await ctx.reply(`Click the button below to play:`, {
                 reply_markup: {
-                    inline_keyboard: [[
-                        { text: 'Open Game', url: websiteUrl },
-                    ]],
+                    inline_keyboard: [[{ text: 'Open Game', url: websiteUrl }]],
                 },
             });
         } catch (error) {
             console.error('Error handling start command:', error);
-            await ctx.reply('An error occurred while processing your request. Please try again later.');
+            await ctx.reply(
+                'An error occurred while processing your request. Please try again later.',
+            );
         }
     }
 

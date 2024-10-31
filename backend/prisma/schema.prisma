@@ -1,0 +1,177 @@
+// generator client
+generator client {
+    provider = "prisma-client-js"
+}
+
+// datasource db
+datasource db {
+    provider = "mongodb"
+    url      = env("DATABASE_URL")
+}
+
+// Enum for user roles
+enum RoleType {
+    USER
+    ADMIN
+}
+
+// Enum for task status
+enum TaskStatus {
+    OPEN
+    COMPLETED
+}
+
+// GameHistory model
+model GameHistory {
+    id         String       @id @default(auto()) @map("_id") @db.ObjectId
+    user_id    String       @db.ObjectId
+    score      Int
+    ip         String
+    browser    String
+    data       String?
+    created_at DateTime     @default(now())
+    updated_at DateTime     @updatedAt
+
+    // Relation to TelegramUser
+    user       TelegramUser @relation(fields: [user_id], references: [id])
+}
+
+// GameProfile model
+model GameProfile {
+    id                  String     @id @default(auto()) @map("_id") @db.ObjectId
+    user_id             String     @db.ObjectId
+    number_of_attempts  Int        @default(0)
+    remaining_play      Int        @default(0)
+    earned_points       Int        @default(100)
+    duration            Int        @default(100)
+    created_at          DateTime   @default(now())
+    updated_at          DateTime   @updatedAt
+
+    // Relation to TelegramUser
+    user                TelegramUser @relation(fields: [user_id], references: [id])
+}
+
+// TaskHistory model
+model TaskHistory {
+    id         String       @id @default(auto()) @map("_id") @db.ObjectId
+    user_id    String       @db.ObjectId
+    task_id    String       @db.ObjectId
+    score      Int
+    ip         String
+    browser    String
+    data       String?
+    created_at DateTime     @default(now())
+    updated_at DateTime     @updatedAt
+
+    // Relation to TelegramUser
+    user       TelegramUser @relation(fields: [user_id], references: [id])
+
+    // Relation to Task
+    task       Task         @relation(fields: [task_id], references: [id])
+}
+
+// Referral model
+model Referral {
+    id                String      @id @default(auto()) @map("_id") @db.ObjectId
+    user_id           String      @db.ObjectId
+    referred_user_id  String      @db.ObjectId
+    score             Int
+    created_at        DateTime    @default(now())
+    updated_at        DateTime    @updatedAt
+
+    // Relation to TelegramUser (referring user)
+    referring_user    TelegramUser @relation("Referrer", fields: [user_id], references: [id])
+
+    // Relation to TelegramUser (referred user)
+    referred_user     TelegramUser @relation("ReferredUser", fields: [referred_user_id], references: [id])
+}
+
+
+
+// Task model
+model Task {
+    id                      String       @id @default(auto()) @map("_id") @db.ObjectId
+    user_id                 String      @db.ObjectId
+    title                   String
+    link                    String
+    description             String?
+    score                   Int         @default(100)
+    status                  TaskStatus
+    created_at DateTime     @default(now())
+    updated_at DateTime     @updatedAt
+
+    // Relation to TelegramUser
+    user      TelegramUser @relation(fields: [user_id], references: [id])
+
+    TaskHistory TaskHistory[]
+}
+
+// TelegramUser model
+model TelegramUser {
+    id                      String       @id @default(auto()) @map("_id") @db.ObjectId
+    is_bot                  Boolean
+    telegram_id             String       @unique
+    user_name               String       @unique
+    name                    String
+    language_code           String?
+    can_join_groups         Boolean?     @default(true)
+    supports_inline_queries Boolean?     @default(false)
+    can_read_all_group_messages Boolean? @default(false)
+    referral_code           String?      @db.ObjectId
+    roles                   RoleType[]   @default([USER])
+    created_at              DateTime      @default(now())
+    updated_at              DateTime      @updatedAt
+    delete_at               DateTime?
+
+    // Relations
+    gameHistories          GameHistory[]
+    gameProfiles           GameProfile[]
+    taskHistories          TaskHistory[]
+    referrals              Referral[] @relation("Referrer")
+    referredReferrals      Referral[] @relation("ReferredUser")
+
+    UserSession UserSession[]
+    Task Task[]
+
+}
+
+
+// User model
+model User {
+    id               String      @id @default(auto()) @map("_id") @db.ObjectId
+    user_name        String      @unique
+    password         String
+    name             String
+    roles            RoleType[]  @default([ADMIN])
+    created_at       DateTime    @default(now())
+    updated_at       DateTime    @updatedAt
+    delete_at        DateTime?
+}
+
+// UserSession model
+model UserSession {
+    id             String        @id @default(auto()) @map("_id") @db.ObjectId
+    user_id       String         @db.ObjectId
+    device_id      String
+    firebase_token String
+    os             OS            @default(WEB)
+    status         StatusAppUser @default(OFFLINE)
+    created_at     DateTime      @default(now())
+    updated_at     DateTime      @updatedAt
+
+    // Relation to TelegramUser
+    user          TelegramUser @relation(fields: [user_id], references: [id])
+}
+
+// Enum for operating systems
+enum OS {
+    WEB
+    ANDROID
+    IOS
+}
+
+// Enum for user status
+enum StatusAppUser {
+    ONLINE
+    OFFLINE
+}
