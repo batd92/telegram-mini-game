@@ -10,6 +10,7 @@
         127.0.0.1       mongo2
         127.0.0.1       mongo3
 -   Access mongo1, Add ReplicaSet
+   
         rs.initiate(
             {
                 _id : 'rs0',
@@ -20,9 +21,11 @@
                 ]
             }
         )
+    
 -   Check ReplicaSet
-        mongosh "mongodb://mongo1:27017,mongo2:27018,mongo3:27019/you_database?replicaSet=rs0"
--  .env DATABASE_URL mongodb://mongo1:27017,mongo2:27018,mongo3:27019/you_database?replicaSet=rs0
+          `mongosh "mongodb://mongo1:27017,mongo2:27018,mongo3:27019/you_database?replicaSet=rs0"`
+-  .env
+          `DATABASE_URL mongodb://mongo1:27017,mongo2:27018,mongo3:27019/you_database?replicaSet=rs0`
 
 
 ## BE
