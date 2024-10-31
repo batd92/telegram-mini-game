@@ -1,6 +1,7 @@
 import { registerAs } from '@nestjs/config';
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/my_database';
 
 export default registerAs('mongodb', () => ({
-    uri: MONGODB_URI,
+    uri:
+        process.env.DATABASE_URL ||
+        'mongodb://mongo1:27017,mongo2:27018,mongo3:27019/you_database?replicaSet=rs0',
 }));

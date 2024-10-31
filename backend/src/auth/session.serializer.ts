@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PassportSerializer } from '@nestjs/passport';
 
-import { TelegramUser } from '../database/schemas/telegram-user.schema';
+import { TelegramUser } from '../models/telegram-user.model';
 
 @Injectable()
 export class SessionSerializer extends PassportSerializer {

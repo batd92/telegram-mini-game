@@ -1,4 +1,9 @@
 {
-  "collection": "@nestjs/schematics",
-  "sourceRoot": "src"
+    "collection": "@nestjs/schematics",
+    "sourceRoot": "src",
+    "compilerOptions": {
+        "deleteOutDir": true,
+        "typeCheck": true,
+        "builder": "swc"
+    }
 }

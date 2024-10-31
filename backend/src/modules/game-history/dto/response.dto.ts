@@ -4,9 +4,8 @@ export class ResGameHistoryDto {
     readonly status: boolean;
 }
 
-
 export class ResListGameHistoryDto {
     readonly score: number;
-    readonly createdAt: string;
+    readonly created_at: string;
     readonly _id: string;
 }

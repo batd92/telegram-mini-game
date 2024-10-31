@@ -2,7 +2,7 @@ export interface ITask {
     _id: string;
     title: string;
     link: string;
-    des: string;
+    description: string;
     score: number;
     history: boolean;
 }

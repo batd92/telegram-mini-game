@@ -3,12 +3,11 @@ import { JwtAuthGuard } from '../../auth/guard/jwt-auth.guard';
 import { TelegramUserService } from './telegram-user.service';
 import { HasRoles } from 'auth/guard/has-roles.decorator';
 import { RoleType } from 'shared/enum/role-type.enum';
-import { IMe } from './dto/IMe';
+import { IMe } from './dto/response.dto';
 
-@Controller({ path: "/user-telegram" })
+@Controller({ path: '/user-telegram' })
 export class TelegramUserController {
-
-    constructor(private telegramUserService: TelegramUserService) { }
+    constructor(private telegramUserService: TelegramUserService) {}
 
     @UseGuards(JwtAuthGuard)
     @HasRoles(RoleType.USER)

@@ -70,7 +70,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
                             color: '#ffffff',
                             border: 'none',
                             borderRadius: '12px',
-                            padding: '5px 15px', // Padding trên/dưới: 5px, trái/phải: 10px
+                            padding: '5px 15px',
                             fontSize: '18px',
                             fontWeight: '600',
                             boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',

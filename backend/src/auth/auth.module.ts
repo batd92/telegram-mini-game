@@ -8,8 +8,9 @@ import { JwtStrategy } from './strategy/jwt.strategy';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import jwtConfig from '../config/jwt.config';
 import { AuthController } from './auth.controller';
-import * as session from 'express-session';
-import * as passport from 'passport';
+import session from 'express-session';
+
+import passport from 'passport';
 import { SessionSerializer } from './session.serializer';
 
 @Module({
@@ -32,20 +33,19 @@ import { SessionSerializer } from './session.serializer';
     exports: [AuthService],
     controllers: [AuthController],
 })
-
 export class AuthModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
         consumer
             .apply(
                 session({
-                    secret: 'rzxlszyykpbgqcflzxsqcysyhljt',
+                    secret: 'batd_92',
                     resave: false,
                     saveUninitialized: false,
                     cookie: {
                         sameSite: true,
                         httpOnly: false,
                         maxAge: 60000,
-                    }
+                    },
                 }),
                 passport.initialize(),
                 passport.session(),

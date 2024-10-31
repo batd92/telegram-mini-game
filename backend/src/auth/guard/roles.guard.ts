@@ -7,7 +7,7 @@ import { AuthenticatedRequest } from '../interface/authenticated-request.interfa
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-    constructor(private readonly reflector: Reflector) { }
+    constructor(private readonly reflector: Reflector) {}
     canActivate(
         context: ExecutionContext,
     ): boolean | Promise<boolean> | Observable<boolean> {
@@ -19,9 +19,9 @@ export class RolesGuard implements CanActivate {
             return true;
         }
 
-        const {
-            user,
-        } = context.switchToHttp().getRequest() as AuthenticatedRequest;
+        const { user } = context
+            .switchToHttp()
+            .getRequest() as AuthenticatedRequest;
         return user.roles && user.roles.some((r) => roles.includes(r));
     }
 }

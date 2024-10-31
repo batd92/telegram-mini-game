@@ -1,107 +1,118 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { from, Observable } from 'rxjs';
-import { ReferralService } from 'modules/referral/referral.service';
-import { GameHistoryService } from 'modules/game-history/game-history.service';
-import { TaskHistoryService } from 'modules/task-history/task-history.service';
-import { Model, Types } from 'mongoose';
-import { TELEGRAM_USER_MODEL } from 'database/constants';
-import { ITelegramUser } from 'modules/telegram/interfaces/telegram.interface';
-import { GameProfileService } from 'modules/game-profile/game-profile.service';
-import { TelegramUser } from 'database/schemas/telegram-user.schema';
-import { IMe } from './dto/IMe';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { IMe } from './dto/response.dto';
+import { TelegramUser } from 'models/telegram-user.model';
+import { ITelegramUser } from '@modules/telegram/interfaces/telegram.interface';
 
 @Injectable()
 export class TelegramUserService {
-    constructor(
-        @Inject(TELEGRAM_USER_MODEL) private telegramUserModel: Model<TelegramUser>,
-        private readonly referralService: ReferralService,
-        private readonly gameHistoryService: GameHistoryService,
-        private readonly taskHistoryService: TaskHistoryService,
-        private readonly gameProfileService: GameProfileService
+    constructor(private readonly prisma: PrismaService) {}
 
-    ) { }
-
-    findByUsernameAndTelegramId(user_name: string, telegram_id: string): Observable<TelegramUser> {
-        return from(this.telegramUserModel.findOne({ user_name, telegram_id }).exec());
+    async findByUsernameAndTelegramId(user_name: string, telegram_id: string) {
+        return this.prisma.telegramUser.findFirst({
+            where: {
+                user_name: user_name,
+                telegram_id: telegram_id,
+            },
+        });
     }
-    
 
     async findByAuthReq(telegram_id: string): Promise<Partial<TelegramUser>> {
-        return this.telegramUserModel.findOne({ telegram_id }).exec()
-    }    
-
-    async findByUserId(id: string): Promise<{ data: IMe }> {
-    const user = await this.telegramUserModel.findOne({ _id: new Types.ObjectId(id) }).exec();
-
-    if (!user) {
-        throw new Error('User not found');
+        return this.prisma.telegramUser.findUnique({
+            where: { telegram_id },
+        });
     }
 
-    const totalGameScore = await this.gameHistoryService.getTotalScore(id).toPromise();
-    const totalTaskScore = await this.taskHistoryService.getTotalScore(id).toPromise();
-    const { data } = await this.referralService.getReferralStats(id).toPromise();
-    const gameInfo = await this.gameProfileService.getGameProfiler(id).toPromise();
+    async findByUserId(id: string): Promise<{ data: IMe }> {
+        const user = await this.prisma.telegramUser.findUnique({
+            where: { id },
+            include: {
+                gameHistories: true,
+                taskHistories: true,
+                gameProfiles: true,
+                referrals: true,
+            },
+        });
 
-    return {
-        data: {
-            _id: user._id.toString(),
-            telegram_id: user.telegram_id,
-            user_name: user.user_name,
-            first_name: user.first_name,
-            language_code: user.language_code,
-            id: user.id,
-            analytics: {
-                game_score: totalGameScore,
-                task_score: totalTaskScore,
-                referral_score: data.length * 100,
-                total_referrals: data.length,
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        const totalGameScore = await this.prisma.gameHistory.aggregate({
+            where: { user_id: user.id },
+            _sum: { score: true },
+        });
+
+        const totalTaskScore = await this.prisma.taskHistory.aggregate({
+            where: { user_id: user.id },
+            _sum: { score: true },
+        });
+
+        const referralsData = await this.prisma.referral.findMany({
+            where: { user_id: id },
+        });
+
+        const gameInfo = await this.prisma.gameProfile.findFirst({
+            where: { user_id: id },
+        });
+
+        return {
+            data: {
+                telegram_id: user.telegram_id,
+                user_name: user.user_name,
+                name: user.name,
+                id: user.id,
+                analytics: {
+                    game_score: totalGameScore._sum.score || 0,
+                    task_score: totalTaskScore._sum.score || 0,
+                    referral_score: referralsData.length * 100,
+                    total_referrals: referralsData.length,
+                },
+                game_info: gameInfo || {
+                    number_of_attempts: 0,
+                    remaining_play: 0,
+                    earned_points: 0,
+                    duration: 0,
+                },
             },
-            game_info: {
-                number_of_attempts: gameInfo.number_of_attempts,
-                remaining_play: gameInfo.remaining_play,
-                earned_points: gameInfo.earned_points,
-                duration: gameInfo.duration
-            },
-        },
-    };
-}
+        };
+    }
 
     async register(data: ITelegramUser): Promise<TelegramUser> {
         console.log('user telegram ', data);
 
-        try {
-            const newTelegramUser = await this.telegramUserModel.create([{
-                telegram_id: data.id.toString(),
-                user_name: data.user_name,
-                is_bot: data.is_bot,
-                first_name: data.first_name,
-                last_name: data.last_name,
-                language_code: data.language_code,
-                can_join_groups: data.can_join_groups,
-                supports_inline_queries: data.supports_inline_queries,
-                can_read_all_group_messages: data.can_read_all_group_messages,
-                referral_code: data.referral_code
-            }]);
-    
-            this.gameProfileService.save({
-                user_id: newTelegramUser[0]._id.toString(),
-                number_of_attempts: 0,
-                remaining_play: 5,
-                score: 100,
+        return await this.prisma.$transaction(async (prisma) => {
+            const newTelegramUser = await prisma.telegramUser.create({
+                data: {
+                    telegram_id: data.id.toString(),
+                    user_name: data.user_name,
+                    is_bot: data.is_bot,
+                    name: data.first_name,
+                    language_code: data.language_code,
+                    referral_code: data.referral_code || undefined,
+                },
             });
-    
+
+            await prisma.gameProfile.create({
+                data: {
+                    user_id: newTelegramUser.id,
+                    number_of_attempts: 0,
+                    remaining_play: 5,
+                    earned_points: 100,
+                },
+            });
+
             if (data.referral_code) {
-                this.referralService.save({
-                    user_id: data.referral_code,
-                    referred_user_id: newTelegramUser[0]._id.toString(),
-                    score: 100,
+                await prisma.referral.create({
+                    data: {
+                        user_id: data.referral_code,
+                        referred_user_id: newTelegramUser.id,
+                        score: 100,
+                    },
                 });
             }
 
-            return newTelegramUser[0];
-        } catch (error) {
-            console.error('Error creating user:', error);
-            throw new Error(`User registration failed: ${error.message}`);
-        }
+            return newTelegramUser;
+        });
     }
 }

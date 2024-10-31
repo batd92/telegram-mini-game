@@ -12,11 +12,11 @@ function loggerFactory(logger: LoggerService, prefix: string) {
 function createLoggerProvider(prefix: string): Provider<LoggerService> {
     return {
         provide: `LoggerService${prefix}`,
-        useFactory: logger => loggerFactory(logger, prefix),
+        useFactory: (logger) => loggerFactory(logger, prefix),
         inject: [LoggerService],
     };
 }
 
 export function createLoggerProviders(): Array<Provider<LoggerService>> {
-    return prefixesForLoggers.map(prefix => createLoggerProvider(prefix));
+    return prefixesForLoggers.map((prefix) => createLoggerProvider(prefix));
 }
