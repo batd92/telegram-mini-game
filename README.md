@@ -10,8 +10,7 @@
 
 Video memo:
 
-<iframe width="403" height="716" src="https://www.youtube.com/embed/5aJJyCqdPyU" title="How to Create a Web App Telegram Bot with React, Phaser.js" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-
+[![How to Create a Web App Telegram Bot with React, Phaser.js](https://img.youtube.com/vi/5aJJyCqdPyU/0.jpg)](https://www.youtube.com/watch?v=5aJJyCqdPyU)
 ## Contributing
 
 If you want to contribute to this project, please create a fork of this repository, make your changes, and submit a pull request.
