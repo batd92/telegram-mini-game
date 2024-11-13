@@ -8,7 +8,9 @@
 
 - **User-Friendly Interface**: The interface is easy to use and intuitive, allowing users to interact and engage with the game effortlessly.
 
-Video memo: [https://www.youtube.com/shorts/5aJJyCqdPyU](https://youtube.com/shorts/5aJJyCqdPyU?si=xfohTHK5TMbVEh8b)
+Video memo:
+
+<iframe width="403" height="716" src="https://www.youtube.com/embed/5aJJyCqdPyU" title="How to Create a Web App Telegram Bot with React, Phaser.js" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ## Contributing
 
