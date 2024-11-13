@@ -30,7 +30,7 @@
 
 ## BE
 
-Install the dependencies.
+.env FRONTEND_BASE_URL= ${FRONTEND_BASE_URL} with Ngrok
 
 ```bash
 $ npm install
